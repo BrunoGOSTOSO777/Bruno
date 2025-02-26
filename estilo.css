@@ -1,0 +1,27 @@
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  font-family: sans-serif;
+}
+
+#carro-container {
+  width: 300px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  text-align: center;
+}
+
+#carro-imagem {
+  width: 200px;
+  height: auto;
+  margin-bottom: 10px;
+}
+
+button, select {
+  padding: 10px 20px;
+  margin: 5px;
+  cursor: pointer;
+}

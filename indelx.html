@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meu Carro</title>
+  <link rel="stylesheet" type="text/css" href="estilo.css" media="screen" />
+</head>
+<body>
+
+  <div id="carro-container">
+    <h2>Meu Carro</h2>
+    <img id="carro-imagem" src="Imagens/download.jpg" alt="Imagem do Carro">
+
+    <p id="carro-status">Status: Desligado</p>
+    <p id="carro-velocidade">Velocidade: 0 km/h</p>
+
+    <label for="cor-seletor">Cor:</label>
+    <select id="cor-seletor">
+      <option value="Vermelho">Vermelho</option>
+      <option value="Azul">Azul</option>
+      <option value="Verde">Verde</option>
+      <option value="Amarelo">Amarelo</option>
+      <option value="Preto">Preto</option>
+    </select>
+
+    <button id="ligar-btn">Ligar</button>
+    <button id="desligar-btn">Desligar</button>
+    <button id="acelerar-btn">Acelerar</button>
+    <button id="desacelerar-btn">Desacelerar</button>
+  </div>
+
+  <audio id="som-aceleracao" src="som do carro/SOM ACELERAÇÃO FERRARI 458 (Gil França Efeitos e Sons).mp3" preload="auto"></audio>
+  <audio id="som-desaceleracao" src="freiada.mp3" preload="auto"></audio>
+
+  <script src="index.js"></script>
+</body>
+</html>
