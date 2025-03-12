@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Herança em JavaScript</title>
+  <link rel="stylesheet" href="eslito.css">
+</head>
+<body>
+  <div id="container">
+    <h1>Herança em JavaScript</h1>
+
+    <div id="opcoesVeiculo">
+      <button onclick="mostrarCarroNormal()">Mostrar Carro Normal</button>
+      <button onclick="mostrarCarroEsportivo()">Mostrar Carro Esportivo</button>
+      <button onclick="mostrarCaminhao()">Mostrar Caminhão</button>
+    </div>
+
+    <div id="carroNormal" style="display: none;">
+      <h2>Carro Normal</h2>
+      <img src="imagens/carroNormal.jpg" alt="Carro Normal">
+      <label for="modeloCarro">Modelo:</label>
+      <input type="text" id="modeloCarro" value="Sedan"><br><br>
+      <label for="corCarro">Cor:</label>
+      <input type="text" id="corCarro" value="Azul"><br><br>
+      <button onclick="ligarCarro()">Ligar</button>
+      <button onclick="desligarCarro()">Desligar</button>
+      <button onclick="acelerarCarro()">Acelerar</button>
+      <div id="infoCarro"></div>
+    </div>
+
+    <div id="carroEsportivo" style="display: none;">
+      <h2>Carro Esportivo</h2>
+      <img src="imagens/carroEsportivo.jpg" alt="Carro Esportivo">
+      <label for="modeloEsportivo">Modelo:</label>
+      <input type="text" id="modeloEsportivo" value="Ferrari"><br><br>
+      <label for="corEsportivo">Cor:</label>
+      <input type="text" id="corEsportivo" value="Vermelha"><br><br>
+      <button onclick="ligarEsportivo()">Ligar</button>
+      <button onclick="desligarEsportivo()">Desligar</button>
+      <button onclick="acelerarEsportivo()">Acelerar</button>
+      <button onclick="ativarTurbo()">Ativar Turbo</button>
+      <div id="infoEsportivo"></div>
+    </div>
+
+    <div id="caminhao" style="display: none;">
+      <h2>Caminhão</h2>
+      <img src="imagens/caminhao.webp" alt="Caminhão">
+      <label for="modeloCaminhao">Modelo:</label>
+      <input type="text" id="modeloCaminhao" value="Volvo"><br><br>
+      <label for="corCaminhao">Cor:</label>
+      <input type="text" id="corCaminhao" value="Branco"><br><br>
+      <label for="capacidadeCaminhao">Capacidade de Carga:</label>
+      <input type="number" id="capacidadeCaminhao" value="10000"><br><br>
+      <label for="pesoCarga">Peso da Carga:</label>
+      <input type="number" id="pesoCarga" value="5000">
+      <button onclick="ligarCaminhao()">Ligar</button>
+      <button onclick="desligarCaminhao()">Desligar</button>
+      <button onclick="acelerarCaminhao()">Acelerar</button>
+      <button onclick="carregarCaminhao()">Carregar</button>
+      <button onclick="descarregarCaminhao()">Descarregar</button>
+      <div id="infoCaminhao"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+
+  <script>
+    // Cria os objetos iniciais quando a página carrega
+    document.addEventListener('DOMContentLoaded', function() {
+      mostrarCarroNormal(); // Mostra o carro normal por padrão ao carregar
+    });
+  </script>
+</body>
+</html>
