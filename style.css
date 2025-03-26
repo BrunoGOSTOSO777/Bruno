@@ -81,3 +81,13 @@ label {
 #mostrarCaminhao:hover {
   background-color: #0077A3; /* Escurece a cor no hover */
 }
+
+#garagem {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+#garagem button {
+  margin: 0 10px;
+}

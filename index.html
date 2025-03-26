@@ -9,17 +9,20 @@
 <body>
     <h1>Meu Carro</h1>
 
-    <button id="mostrarCarro">Mostrar Carro</button>
-    <button id="mostrarCarroEsportivo">Mostrar Carro Esportivo</button>
-    <button id="mostrarCaminhao">Mostrar Caminhão</button>
+    <button style="display: none;" id="mostrarCarro">Mostrar Carro</button>
+    <button style="display: none;" id="mostrarCarroEsportivo">Mostrar Carro Esportivo</button>
+    <button style="display: none;" id="mostrarCaminhao">Mostrar Caminhão</button>
 
-<div id="imagemCarro1"> 
-  <img id="imagemCarro" src="imagens/carroNormal.jpg" alt="Carro" width="300">
-  </div>
+    <div id="garagem">
+        <button data-carro="carroNormal">Mostrar Carro Comum</button>
+        <button data-carro="carroEsportivo">Mostrar Carro Esportivo</button>
+        <button data-carro="caminhao">Mostrar Caminhão</button>
+    </div>
 
-    
 
     <div id="informacoesCarro">
+        <img id="imagemCarro" src="imagens/carroNormal.jpg" alt="Carro" width="300">
+
         <h2>Carro Comum</h2>
         <p>Modelo: <span id="modeloCarro"></span></p>
         <p>Cor: <span id="corCarro"></span></p>
@@ -31,6 +34,8 @@
     </div>
 
     <div id="informacoesCarroEsportivo" style="display: none;">
+        <img id="imagemCarro" src="imagens/carroEsportivo.jpg" alt="Carro" width="300">
+
         <h2>Carro Esportivo</h2>
         <p>Modelo: <span id="modeloCarroEsportivo"></span></p>
         <p>Cor: <span id="corCarroEsportivo"></span></p>
@@ -46,6 +51,8 @@
     </div>
 
     <div id="informacoesCaminhao" style="display: none;">
+        <img id="imagemCarro" src="imagens/caminhao.jpg" alt="Carro" width="300">
+
         <h2>Caminhão</h2>
         <p>Modelo: <span id="modeloCaminhao"></span></p>
         <p>Cor: <span id="corCaminhao"></span></p>

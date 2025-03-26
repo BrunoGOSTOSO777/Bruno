@@ -5,6 +5,7 @@ class Veiculo {
       this.cor = cor;
       this.ligado = false;
   }
+  
 
   ligar() {
       this.ligado = true;
@@ -235,21 +236,21 @@ function mostrarCarro() {
   document.getElementById("informacoesCarro").style.display = "block";
   document.getElementById("informacoesCarroEsportivo").style.display = "none";
   document.getElementById("informacoesCaminhao").style.display = "none";
-  document.getElementById("imagemCarro").src = "img/carro.png"; //  adicione a imagem correspondente
+  document.getElementById("imagemCarro").src = "imagens/carroNormal.jpg"; //  adicione a imagem correspondente
 }
 
 function mostrarCarroEsportivo() {
   document.getElementById("informacoesCarro").style.display = "none";
   document.getElementById("informacoesCarroEsportivo").style.display = "block";
   document.getElementById("informacoesCaminhao").style.display = "none";
-  document.getElementById("imagemCarro").src = "img/carroEsportivo.png"; // Adicione a imagem correspondente
+  document.getElementById("imagemCarro").src = "imagens/carroEsportivo.jpg"; // Adicione a imagem correspondente
 }
 
 function mostrarCaminhao() {
   document.getElementById("informacoesCarro").style.display = "none";
   document.getElementById("informacoesCarroEsportivo").style.display = "none";
   document.getElementById("informacoesCaminhao").style.display = "block";
-  document.getElementById("imagemCarro").src = "img/caminhao.png"; // Adicione a imagem correspondente
+  document.getElementById("imagemCarro").src = "imagens/caminhao.jpg"; // Adicione a imagem correspondente
 }
 
 // Event listeners para os botões de mostrar
@@ -361,4 +362,45 @@ botaoDescarregar.addEventListener("click", function () {
 
 botaoBuzinarCaminhao.addEventListener("click", function () {
   meuCaminhao.buzinar();
+});
+
+// Função para mostrar um carro específico e esconder os outros
+function mostrarCarroNaGaragem(carroId) {
+    const carros = ["informacoesCarro", "informacoesCarroEsportivo", "informacoesCaminhao"];
+
+    carros.forEach(id => {
+        document.getElementById(id).style.display = (id === carroId) ? "block" : "none";
+    });
+
+    // Adiciona lógica para atualizar a imagem, se necessário
+    let imagemSrc = "";
+    if (carroId === "informacoesCarro") {
+        imagemSrc = "imagens/carroNormal.jpg";
+    } else if (carroId === "informacoesCarroEsportivo") {
+        imagemSrc = "imagens/carroEsportivo.jpg";
+    } else if (carroId === "informacoesCaminhao") {
+        imagemSrc = "imagens/caminhao.jpg";
+    }
+
+    if (imagemSrc) {
+        document.getElementById("imagemCarro").src = imagemSrc;
+    }
+}
+
+// Event listeners para os botões da garagem
+document.getElementById("garagem").addEventListener("click", function(event) {
+    if (event.target.tagName === "BUTTON") {
+        const carroSelecionado = event.target.dataset.carro; // Pega o 'data-carro' do botão
+        let carroId;
+
+        if (carroSelecionado === "carroNormal") {
+            carroId = "informacoesCarro";
+        } else if (carroSelecionado === "carroEsportivo") {
+            carroId = "informacoesCarroEsportivo";
+        } else if (carroSelecionado === "caminhao") {
+            carroId = "informacoesCaminhao";
+        }
+
+        mostrarCarroNaGaragem(carroId);
+    }
 });
