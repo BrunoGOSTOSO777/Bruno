@@ -1,0 +1,31 @@
+[
+    {
+      "identificador": "BMW M3 Competition",
+      "valorFIPE": "R$ 850.000,00",
+      "recallPendente": false,
+      "ultimaRevisao": "2024-03-10",
+      "dicaManutencao": "Usar apenas gasolina premium. Verificar pressão dos pneus frequentemente."
+    },
+    {
+      "identificador": "Scania R450",
+      "valorFIPE": "R$ 620.000,00",
+      "recallPendente": true,
+      "recallInfo": "Verificar sistema de freios ABS (Campanha 2024/01).",
+      "ultimaRevisao": "2023-12-05",
+      "dicaManutencao": "Inspecionar lonas de freio a cada 10.000km."
+    },
+    {
+      "identificador": "Corola do Novo",
+      "valorFIPE": "R$ 150.000,00",
+      "recallPendente": false,
+      "ultimaRevisao": "2024-02-28",
+      "dicaManutencao": "Troca de óleo e filtro a cada 10.000km ou 1 ano."
+    },
+    {
+      "identificador": "ModeloNaoExistenteNaGaragem", 
+      "valorFIPE": "R$ 10.000,00",
+      "recallPendente": false,
+      "ultimaRevisao": "N/A",
+      "dicaManutencao": "N/A"
+    }
+  ]
