@@ -1,52 +1,25 @@
 // ------------------------------------
 // ---- CLASSE MANUTENCAO (Opcional) ----
 // ------------------------------------
-// (Coloque a classe Manutencao aqui se não estiver em arquivo separado)
-// class Manutencao { ... }
-// Exemplo básico (se precisar usar):
-/*
-class Manutencao {
-    constructor(data, descricao, custo, detalhes = '') {
-        // Validar data (simplificado)
-        this.data = new Date(data + 'T00:00:00'); // Adiciona hora para evitar problemas de fuso
-        this.descricao = descricao;
-        this.custo = parseFloat(custo);
-        this.detalhes = detalhes;
-    }
-
-    validar() {
-        return !isNaN(this.data.getTime()) &&
-               typeof this.descricao === 'string' && this.descricao.length > 0 &&
-               !isNaN(this.custo) && this.custo >= 0;
-    }
-
-    getRepresentacaoFormatada() {
-        const dataFormatada = this.data.toLocaleDateString('pt-BR');
-        return `${dataFormatada} - ${this.descricao} (R$ ${this.custo.toFixed(2)}) ${this.detalhes ? `- ${this.detalhes}` : ''}`;
-    }
-}
-*/
+// (Coloque a classe Manutencao aqui se não estiver em arquivo separado Manutencao.js)
+// Se Manutencao.js estiver sendo usado, certifique-se que ele define a classe globalmente
+// ou a exporta e você a importa aqui (se estiver usando módulos JS, o que não parece ser o caso).
 
 // ------------------------------------
 // ---- OPENWEATHERMAP API CONFIG ----
 // ------------------------------------
+const openWeatherApiKey = "e7b530ba5429936b7b96cf5f5b7a72ae"; // <-- SUBSTITUA PELA SUA CHAVE REAL SE NECESSÁRIO
 
-// ATENÇÃO: ARMAZENAR A API KEY DIRETAMENTE NO CÓDIGO FRONTEND É INSEGURO!
-// Em uma aplicação real, a chave NUNCA deve ficar exposta aqui.
-// A forma correta envolve um backend (Node.js, Serverless) atuando como proxy.
-// Para FINS DIDÁTICOS nesta atividade, vamos usá-la aqui temporariamente.
-const openWeatherApiKey = "e7b530ba5429936b7b96cf5f5b7a72ae"; // <-- SUBSTITUA PELA SUA CHAVE
+// ------------------------------------
+// ---- VARIÁVEIS GLOBAIS PARA INTERATIVIDADE DA PREVISÃO ----
+// ------------------------------------
+let dadosCompletosForecast = [];
+let numeroDeDiasAtual = 5; // Padrão inicial para previsão
+let nomeCidadeAtualForecast = ""; // Para manter o nome da cidade entre filtragens
 
 // ------------------------------------
 // ---- FUNÇÕES DO PLANEJADOR DE VIAGEM (CLIMA ATUAL) ----
 // ------------------------------------
-
-/**
- * Busca o clima atual para uma cidade específica.
- * @async
- * @param {string} nomeCidade - O nome da cidade para buscar o clima atual.
- * @returns {Promise<object|null>} Uma Promise que resolve com os dados do clima atual ou null em caso de erro.
- */
 async function buscarClimaAtualViagem(nomeCidade) {
     const statusDiv = document.getElementById('clima-viagem-status');
     if (!openWeatherApiKey || openWeatherApiKey === "SUA_CHAVE_OPENWEATHERMAP_AQUI") {
@@ -54,19 +27,15 @@ async function buscarClimaAtualViagem(nomeCidade) {
         if (statusDiv) statusDiv.textContent = "Erro: Chave da API não configurada. Verifique o console.";
         return null;
     }
-
     const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(nomeCidade)}&appid=${openWeatherApiKey}&units=metric&lang=pt_br`;
-
     try {
         const response = await fetch(url);
-        const data = await response.json(); // Tenta parsear JSON mesmo em erro para pegar mensagem
-
+        const data = await response.json();
         if (!response.ok) {
             const errorMessage = data.message || `Erro HTTP: ${response.status}`;
             console.error(`Erro ao buscar clima atual: ${errorMessage}`, data);
             throw new Error(errorMessage);
         }
-        // Extrai e formata os dados relevantes
         return {
             nome: data.name,
             temperatura: Math.round(data.main.temp),
@@ -74,9 +43,9 @@ async function buscarClimaAtualViagem(nomeCidade) {
             descricao: data.weather[0].description,
             umidade: data.main.humidity,
             icone: data.weather[0].icon,
-            ventoVelocidade: data.wind.speed, // m/s
-            pressao: data.main.pressure, // hPa
-            visibilidade: data.visibility, // metros
+            ventoVelocidade: data.wind.speed,
+            pressao: data.main.pressure,
+            visibilidade: data.visibility,
             nascerDoSol: data.sys.sunrise ? new Date(data.sys.sunrise * 1000).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit'}) : 'N/A',
             porDoSol: data.sys.sunset ? new Date(data.sys.sunset * 1000).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit'}) : 'N/A',
         };
@@ -87,30 +56,20 @@ async function buscarClimaAtualViagem(nomeCidade) {
     }
 }
 
-/**
- * Exibe o clima atual na interface do usuário para o planejador de viagem.
- * @param {object} dadosClima - Objeto com os dados do clima atual processados.
- * @param {string} nomeCidadeInput - O nome da cidade conforme digitado pelo usuário (para título).
- */
 function exibirClimaAtualViagem(dadosClima, nomeCidadeInput) {
     const resultadoDiv = document.getElementById('clima-viagem-resultado');
     const statusDiv = document.getElementById('clima-viagem-status');
-
     if (!resultadoDiv || !statusDiv) {
         console.error("Elementos da UI para clima da viagem não encontrados.");
         return;
     }
-    resultadoDiv.innerHTML = ''; // Limpa resultados anteriores
-    statusDiv.textContent = '';   // Limpa mensagem de status
-
+    resultadoDiv.innerHTML = '';
+    statusDiv.textContent = '';
     if (!dadosClima) {
         resultadoDiv.innerHTML = '<p>Não foi possível obter o clima atual para o destino.</p>';
         return;
     }
-
-    // Usa o nome da cidade retornado pela API se disponível, senão o input
     const nomeExibicao = dadosClima.nome || nomeCidadeInput;
-
     resultadoDiv.innerHTML = `
         <h3>Clima Atual em ${nomeExibicao}</h3>
         <div class="clima-atual-cartao">
@@ -122,7 +81,7 @@ function exibirClimaAtualViagem(dadosClima, nomeCidadeInput) {
             <div class="clima-detalhes">
                 <p>Sensação Térmica: <strong>${dadosClima.sensacao}°C</strong></p>
                 <p>Umidade: <strong>${dadosClima.umidade}%</strong></p>
-                <p>Vento: <strong>${(dadosClima.ventoVelocidade * 3.6).toFixed(1)} km/h</strong></p> 
+                <p>Vento: <strong>${(dadosClima.ventoVelocidade * 3.6).toFixed(1)} km/h</strong></p>
                 <p>Pressão: <strong>${dadosClima.pressao} hPa</strong></p>
                 <p>Visibilidade: <strong>${(dadosClima.visibilidade / 1000).toFixed(1)} km</strong></p>
                 <p>Nascer do Sol: <strong>${dadosClima.nascerDoSol}</strong></p>
@@ -132,17 +91,9 @@ function exibirClimaAtualViagem(dadosClima, nomeCidadeInput) {
     `;
 }
 
-
 // ------------------------------------
 // ---- FUNÇÕES DA PREVISÃO DO TEMPO (5 DIAS FORECAST) ----
 // ------------------------------------
-
-/**
- * Busca a previsão do tempo detalhada para 5 dias (a cada 3 horas) para uma cidade.
- * @async
- * @param {string} cidade - O nome da cidade para buscar a previsão.
- * @returns {Promise<object|null>} Uma Promise que resolve com os dados da API ou null em caso de erro.
- */
 async function buscarPrevisaoDetalhada(cidade) {
     const statusDiv = document.getElementById('previsao-status');
     if (!openWeatherApiKey || openWeatherApiKey === "SUA_CHAVE_OPENWEATHERMAP_AQUI") {
@@ -150,19 +101,16 @@ async function buscarPrevisaoDetalhada(cidade) {
         if (statusDiv) statusDiv.textContent = "Erro: Chave da API não configurada. Verifique o console.";
         return null;
     }
-
     const url = `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(cidade)}&appid=${openWeatherApiKey}&units=metric&lang=pt_br`;
-
     try {
         const response = await fetch(url);
-        const data = await response.json(); // Tenta parsear JSON mesmo em erro para pegar mensagem
-
+        const data = await response.json();
         if (!response.ok) {
-            // A API OpenWeatherMap geralmente retorna um objeto JSON com 'cod' e 'message' em caso de erro
             const errorMessage = data.message || `Erro HTTP: ${response.status}`;
             console.error(`Erro ao buscar previsão: ${errorMessage}`, data);
             throw new Error(errorMessage);
         }
+        nomeCidadeAtualForecast = data.city.name || cidade; // Armazena o nome da cidade retornado pela API
         return data;
     } catch (error) {
         console.error("Falha na requisição da previsão do tempo:", error);
@@ -171,61 +119,53 @@ async function buscarPrevisaoDetalhada(cidade) {
     }
 }
 
-/**
- * Processa os dados brutos da API de forecast para agrupar por dia e resumir informações.
- * @param {object} data - O objeto JSON completo retornado pela API OpenWeatherMap Forecast.
- * @returns {Array<object>|null} Um array de objetos, onde cada objeto representa um dia com dados resumidos, ou null se os dados forem inválidos.
- * Exemplo de objeto de retorno para um dia: { data: 'AAAA-MM-DD', temp_min: X, temp_max: Y, descricao: '...', icone: '...' }
- */
 function processarDadosForecast(data) {
     if (!data || !data.list || !Array.isArray(data.list) || data.list.length === 0) {
         console.error("Dados da previsão inválidos ou lista vazia:", data);
         return null;
     }
-
     const diasAgrupados = {};
-
     data.list.forEach(item => {
-        const [dateStr] = item.dt_txt.split(' '); // Pega apenas a parte da data 'AAAA-MM-DD'
-        
+        const [dateStr] = item.dt_txt.split(' ');
         if (!diasAgrupados[dateStr]) {
             diasAgrupados[dateStr] = {
                 temps: [],
-                weatherEntries: [] // Para armazenar {time, description, icon}
+                weatherEntries: []
             };
         }
         diasAgrupados[dateStr].temps.push(item.main.temp);
         diasAgrupados[dateStr].weatherEntries.push({
-            time: item.dt_txt.split(' ')[1], // Hora 'HH:MM:SS'
+            time: item.dt_txt.split(' ')[1],
             description: item.weather[0].description,
-            icon: item.weather[0].icon
+            icon: item.weather[0].icon,
+            // Adicionar mais detalhes se for usar expansão de card
+            umidade: item.main.humidity,
+            ventoVelocidade: item.wind.speed,
+            idCondicao: item.weather[0].id // útil para identificar tipo de chuva/condição
         });
     });
 
     const previsaoDiariaProcessada = [];
-    // Ordenar as chaves (datas) para garantir a ordem cronológica
     const datasOrdenadas = Object.keys(diasAgrupados).sort();
 
     for (const dateKey of datasOrdenadas) {
         const dia = diasAgrupados[dateKey];
         const temp_min = Math.min(...dia.temps);
         const temp_max = Math.max(...dia.temps);
-
-        // Lógica para escolher uma descrição e ícone representativos para o dia
-        // Tenta pegar a entrada das 12:00 ou 15:00, se não, a do meio do dia
         let representativeWeather = dia.weatherEntries.find(e => e.time === "12:00:00" || e.time === "15:00:00");
         if (!representativeWeather && dia.weatherEntries.length > 0) {
             representativeWeather = dia.weatherEntries[Math.floor(dia.weatherEntries.length / 2)];
-        } else if (!representativeWeather) { // Caso não haja entradas (improvável, mas seguro)
-            representativeWeather = { description: "N/A", icon: "01d" }; // Ícone padrão
+        } else if (!representativeWeather) {
+            representativeWeather = { description: "N/A", icon: "01d", umidade: "N/A", ventoVelocidade: "N/A" };
         }
-        
         previsaoDiariaProcessada.push({
             data: dateKey,
-            temp_min: Math.round(temp_min), // Arredonda para inteiro
-            temp_max: Math.round(temp_max), // Arredonda para inteiro
+            temp_min: Math.round(temp_min),
+            temp_max: Math.round(temp_max),
             descricao: representativeWeather.description,
-            icone: representativeWeather.icon
+            icone: representativeWeather.icon,
+            umidade: representativeWeather.umidade, // Guardar para possível expansão
+            ventoVelocidade: representativeWeather.ventoVelocidade // Guardar para possível expansão
         });
     }
     return previsaoDiariaProcessada;
@@ -233,23 +173,32 @@ function processarDadosForecast(data) {
 
 /**
  * Exibe a previsão do tempo detalhada na interface do usuário.
- * @param {Array<object>} previsaoDiaria - Array com os dados da previsão processados por dia.
+ * @param {Array<object>} previsaoDiariaCompleta - Array com os dados da previsão processados para todos os dias disponíveis.
  * @param {string} nomeCidade - O nome da cidade para exibição no título.
+ * @param {number} [numDiasParaExibir=5] - O número de dias da previsão a serem exibidos.
  */
-function exibirPrevisaoDetalhada(previsaoDiaria, nomeCidade) {
+function exibirPrevisaoDetalhada(previsaoDiariaCompleta, nomeCidade, numDiasParaExibir = 5) {
     const resultadoDiv = document.getElementById('previsao-tempo-resultado');
     const statusDiv = document.getElementById('previsao-status');
+    const checkDestaqueChuvaEl = document.getElementById('check-destaque-chuva'); // Pegar aqui
 
     if (!resultadoDiv || !statusDiv) {
         console.error("Elementos da UI para previsão do tempo não encontrados.");
         return;
     }
-    resultadoDiv.innerHTML = ''; // Limpa resultados anteriores
-    statusDiv.textContent = ''; // Limpa mensagem de status
+    resultadoDiv.innerHTML = '';
+    // statusDiv.textContent = ''; // Não limpar o status se for erro da API, mas limpar se for sucesso
 
-    if (!previsaoDiaria || previsaoDiaria.length === 0) {
+    if (!previsaoDiariaCompleta || previsaoDiariaCompleta.length === 0) {
         resultadoDiv.innerHTML = '<p>Não foi possível obter a previsão detalhada.</p>';
         return;
+    }
+
+    const diasFiltrados = previsaoDiariaCompleta.slice(0, numDiasParaExibir);
+
+    if (diasFiltrados.length === 0) {
+         resultadoDiv.innerHTML = `<p>Não há previsão para o(s) dia(s) solicitado(s).</p>`;
+         return;
     }
 
     const titulo = document.createElement('h3');
@@ -257,13 +206,24 @@ function exibirPrevisaoDetalhada(previsaoDiaria, nomeCidade) {
     resultadoDiv.appendChild(titulo);
 
     const containerDias = document.createElement('div');
-    containerDias.className = 'previsao-dias-container'; // Para estilização com flexbox/grid
+    containerDias.className = 'previsao-dias-container';
 
-    previsaoDiaria.forEach(dia => {
+    diasFiltrados.forEach(dia => {
         const diaDiv = document.createElement('div');
         diaDiv.className = 'previsao-dia-item';
 
-        const dataObj = new Date(dia.data + "T00:00:00"); // Adiciona T00:00:00 para evitar problemas de fuso
+        // Lógica de Destaque de Chuva
+        if (checkDestaqueChuvaEl && checkDestaqueChuvaEl.checked) {
+            const descricaoLowerCase = dia.descricao.toLowerCase();
+            if (descricaoLowerCase.includes('chuva') || descricaoLowerCase.includes('rain') || 
+                descricaoLowerCase.includes('shower') || descricaoLowerCase.includes('drizzle') || 
+                descricaoLowerCase.includes('thunderstorm') || descricaoLowerCase.includes('garoa') ||
+                descricaoLowerCase.includes('tempestade')) {
+                diaDiv.classList.add('dia-chuvoso-destaque');
+            }
+        }
+
+        const dataObj = new Date(dia.data + "T00:00:00");
         const dataFormatada = dataObj.toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'short' });
 
         diaDiv.innerHTML = `
@@ -272,18 +232,23 @@ function exibirPrevisaoDetalhada(previsaoDiaria, nomeCidade) {
             <p class="descricao-clima">${dia.descricao}</p>
             <p>Min: <span class="temp-min">${dia.temp_min}°C</span></p>
             <p>Máx: <span class="temp-max">${dia.temp_max}°C</span></p>
+            <!-- Você pode adicionar um local para mais detalhes (umidade, vento) se implementar expansão de card -->
+            <!-- Ex: <div class="detalhes-extras-previsao" style="display:none;">
+                        <p>Umidade: ${dia.umidade}%</p>
+                        <p>Vento: ${(dia.ventoVelocidade * 3.6).toFixed(1)} km/h</p>
+                    </div> -->
         `;
         containerDias.appendChild(diaDiv);
     });
     resultadoDiv.appendChild(containerDias);
+    if (statusDiv && statusDiv.textContent === "Carregando previsão detalhada...") { // Limpa "Carregando..." se tudo ok
+        statusDiv.textContent = '';
+    }
 }
-
 
 // ------------------------------------
 // ---- CLASSES DE VEICULOS ----
 // ------------------------------------
-
-// Classe Base: Veiculo
 class Veiculo {
     constructor(modelo, cor, painelId, imagemSrc) {
         if (!modelo || !cor || !painelId || !imagemSrc) {
@@ -292,27 +257,25 @@ class Veiculo {
         this.modelo = modelo;
         this.cor = cor;
         this.ligado = false;
-        this.painelId = painelId; // ID da div de informações (ex: 'informacoesCarro')
-        this.imagemSrc = imagemSrc; // Caminho da imagem para este veículo
-        this.historicoManutencoes = []; // Para a classe Manutencao (opcional)
-
-        // Referência ao painel (obtida quando selecionado)
+        this.painelId = painelId;
+        this.imagemSrc = imagemSrc;
+        this.historicoManutencoes = [];
         this.painelElement = null;
     }
 
-    // Método para definir o elemento do painel quando o veículo é selecionado
     associarPainel() {
         this.painelElement = document.getElementById(this.painelId);
         if (!this.painelElement) {
             console.error(`Painel com ID ${this.painelId} não encontrado para ${this.modelo}`);
+        } else {
+             this.preencherInfoBasicaPainel();
         }
     }
 
-    // Métodos de ação básicos (ligar/desligar/buzinar)
     ligar() {
         this.ligado = true;
         console.log(`${this.modelo} ligado!`);
-        this.playSom('somLigando'); // Toca som genérico de ligar
+        this.playSom('somLigando');
         this.atualizarStatusNaTela();
         this.atualizarBotaoLigarDesligar();
     }
@@ -322,62 +285,70 @@ class Veiculo {
         console.log(`${this.modelo} desligado!`);
         this.atualizarStatusNaTela();
         this.atualizarBotaoLigarDesligar();
-        // Outras ações ao desligar (ex: zerar velocidade) podem ser sobrescritas
     }
 
     buzinar() {
         console.log(`Buzina genérica do ${this.modelo}: Bi bi!`);
-        // Implementar som específico nas subclasses se necessário
     }
 
-    // Métodos para tocar sons (centralizado)
     playSom(somId) {
         const som = document.getElementById(somId);
         if (som) {
-            som.currentTime = 0; // Reinicia o som se já estiver tocando
+            som.currentTime = 0;
             som.play().catch(e => console.error("Erro ao tocar som:", e));
         } else {
             console.warn(`Elemento de áudio com ID "${somId}" não encontrado.`);
         }
     }
 
-    // Métodos de atualização da UI (usando this.painelElement)
     atualizarStatusNaTela() {
         if (!this.painelElement) return;
-        // Encontra o span de status DENTRO do painel correto
-        const statusSpan = this.painelElement.querySelector('span[id^="status"]'); // Procura span cujo id começa com 'status'
+        const statusSpan = this.painelElement.querySelector(`span[id^="status${this.constructor.name.replace('Carro','') }"]`); // Ajuste para ID mais específico se necessário (statusCarro, statusCarroEsportivo)
         if (statusSpan) {
             statusSpan.textContent = this.ligado ? "Ligado" : "Desligado";
         } else {
-             console.warn(`Span de status não encontrado no painel ${this.painelId}`);
+             console.warn(`Span de status não encontrado no painel ${this.painelId} para ${this.constructor.name}. Tentando ID genérico.`);
+             const genericStatusSpan = this.painelElement.querySelector('span[id^="status"]');
+             if(genericStatusSpan) genericStatusSpan.textContent = this.ligado ? "Ligado" : "Desligado";
+             else console.error(`Span de status DEFINITIVAMENTE não encontrado no painel ${this.painelId}`);
         }
     }
 
     atualizarBotaoLigarDesligar() {
          if (!this.painelElement) return;
-         const btn = this.painelElement.querySelector('button[id^="ligarDesligar"]');
+         // Assumindo que os botões Ligar/Desligar têm IDs que incluem o tipo de veículo
+         // ex: ligarDesligarCarro, ligarDesligarCarroEsportivo
+         const btn = this.painelElement.querySelector(`button[id^="ligarDesligar${this.constructor.name.replace('Carro','')}"]`);
          if (btn) {
             btn.textContent = this.ligado ? "Desligar" : "Ligar";
          } else {
-             console.warn(`Botão Ligar/Desligar não encontrado no painel ${this.painelId}`);
+             console.warn(`Botão Ligar/Desligar não encontrado com ID específico no painel ${this.painelId} para ${this.constructor.name}.`);
+             // Fallback para um ID mais genérico se o padrão acima não for encontrado
+             const genericBtn = this.painelElement.querySelector('button[id^="ligarDesligar"]');
+             if(genericBtn) genericBtn.textContent = this.ligado ? "Desligar" : "Ligar";
+             else console.error(`Botão Ligar/Desligar DEFINITIVAMENTE não encontrado no painel ${this.painelId}`);
          }
     }
 
-     // Atualiza informações estáticas (modelo, cor) no painel
-     preencherInfoBasicaPainel() {
+    preencherInfoBasicaPainel() {
         if (!this.painelElement) return;
+        const tipoVeiculoNome = this.constructor.name.replace('Carro', ''); // "Carro", "CarroEsportivo", "Caminhao" -> "", "Esportivo", "Caminhao"
+
         const setSpan = (idPart, value) => {
-            // Busca pelo ID COMPLETO agora, mais específico
-            const span = this.painelElement.querySelector(`span#${idPart}${this.constructor.name}`); // Ex: modeloCarro, modeloCarroEsportivo
+            // Tenta primeiro com o nome completo da classe (ex: modeloCarro, modeloCarroEsportivo)
+            let span = this.painelElement.querySelector(`span#${idPart}${this.constructor.name}`);
+            if (!span && tipoVeiculoNome) { // Tenta com o tipo mais curto se o primeiro falhar e tipoVeiculoNome não for vazio
+                span = this.painelElement.querySelector(`span#${idPart}${tipoVeiculoNome}`);
+            }
              if (span) {
                  span.textContent = value;
              } else {
-                 // Tenta encontrar por ID parcial como fallback (manter compatibilidade se ID não seguir padrão)
-                 const fallbackSpan = this.painelElement.querySelector(`span[id^="${idPart}"]`);
-                 if (fallbackSpan) {
+                // Fallback mais genérico se os IDs no HTML não seguirem esse padrão
+                const fallbackSpan = this.painelElement.querySelector(`span[id^="${idPart}"]`);
+                 if (fallbackSpan && fallbackSpan.id.toLowerCase().includes(idPart.toLowerCase())) {
                      fallbackSpan.textContent = value;
                  } else {
-                     console.warn(`Span para '${idPart}' não encontrado no painel ${this.painelId}`);
+                    console.warn(`Span para '${idPart}' (tentativas: #${idPart}${this.constructor.name}, #${idPart}${tipoVeiculoNome}) não encontrado no painel ${this.painelId}`);
                  }
              }
         };
@@ -385,13 +356,11 @@ class Veiculo {
         setSpan('cor', this.cor);
     }
 
-    // --- Métodos de Manutenção (Opcional) ---
     adicionarManutencao(manutencao) {
         if (typeof Manutencao !== 'undefined' && manutencao instanceof Manutencao && manutencao.validar()) {
             this.historicoManutencoes.push(manutencao);
             console.log(`Manutenção adicionada ao ${this.modelo}: ${manutencao.getRepresentacaoFormatada()}`);
             this.historicoManutencoes.sort((a, b) => a.data - b.data);
-            // Aqui você poderia atualizar uma área de histórico na UI, se existir
             return true;
         } else {
             console.error("Não foi possível adicionar a manutenção: dados inválidos ou classe Manutencao não definida/importada.");
@@ -405,13 +374,11 @@ class Veiculo {
     }
 }
 
-// --- Classe Carro ---
 class Carro extends Veiculo {
     constructor(modelo, cor) {
-        // Passa ID do painel e imagem para o construtor pai
         super(modelo, cor, 'informacoesCarro', 'imagens/carroNormal.jpg');
         this.velocidade = 0;
-        this.somBuzinaId = "somBuzinaCarro"; // ID do som específico
+        this.somBuzinaId = "somBuzinaCarro";
     }
 
     desligar() {
@@ -427,7 +394,7 @@ class Carro extends Veiculo {
             this.playSom("somAceleracao");
             this.atualizarVelocidadeNaTela();
         } else {
-            alert("Ligue o carro para acelerar!"); // Usando alert para feedback visual
+            alert("Ligue o carro para acelerar!");
         }
     }
 
@@ -436,7 +403,6 @@ class Carro extends Veiculo {
             this.velocidade -= 10;
             if (this.velocidade < 0) this.velocidade = 0;
             console.log(`${this.modelo} freando! Velocidade: ${this.velocidade} km/h`);
-            // Poderia ter um som de freio aqui
             this.atualizarVelocidadeNaTela();
         } else {
              alert("O carro está desligado.");
@@ -450,7 +416,7 @@ class Carro extends Veiculo {
 
     atualizarVelocidadeNaTela() {
         if (!this.painelElement) return;
-        const velSpan = this.painelElement.querySelector('span[id^="velocidade"]');
+        const velSpan = this.painelElement.querySelector('span[id^="velocidade"]'); // ID genérico por agora
         if (velSpan) {
             velSpan.textContent = this.velocidade;
         } else {
@@ -458,27 +424,23 @@ class Carro extends Veiculo {
         }
     }
 
-     // Sobrescreve para incluir atualização de velocidade e outras infos
      associarPainel() {
-        super.associarPainel(); // Chama o método da classe pai
-        if (this.painelElement) { // Garante que o painel foi encontrado
-            this.preencherInfoBasicaPainel(); // Preenche modelo/cor
-            this.atualizarStatusNaTela(); // Garante status correto
-            this.atualizarBotaoLigarDesligar(); // Garante texto do botão
-            this.atualizarVelocidadeNaTela(); // Garante que a velocidade seja exibida ao selecionar
+        super.associarPainel();
+        if (this.painelElement) {
+            this.atualizarStatusNaTela();
+            this.atualizarBotaoLigarDesligar();
+            this.atualizarVelocidadeNaTela();
         }
     }
 }
 
-// --- Classe CarroEsportivo ---
-class CarroEsportivo extends Carro { // Herda de Carro
+class CarroEsportivo extends Carro {
     constructor(modelo, cor) {
-        super(modelo, cor); // Chama construtor do Carro
-        // Sobrescreve painelId e imagemSrc definidos pelo Carro
+        super(modelo, cor);
         this.painelId = 'informacoesCarroEsportivo';
         this.imagemSrc = 'imagens/carroEsportivo.jpg';
         this.turboAtivado = false;
-        this.somBuzinaId = "somBuzinaEsportivo"; // Som diferente
+        this.somBuzinaId = "somBuzinaEsportivo";
     }
 
     ativarTurbo() {
@@ -502,10 +464,9 @@ class CarroEsportivo extends Carro { // Herda de Carro
         }
     }
 
-    // Sobrescreve acelerar para considerar o turbo
     acelerar() {
         if (this.ligado) {
-            const incremento = this.turboAtivado ? 30 : 15; // Acelera mais rápido, mais ainda com turbo
+            const incremento = this.turboAtivado ? 30 : 15;
             this.velocidade += incremento;
             console.log(`${this.modelo} acelerando ${this.turboAtivado ? 'COM TURBO' : ''}! Velocidade: ${this.velocidade} km/h`);
             this.playSom("somAceleracao");
@@ -515,7 +476,6 @@ class CarroEsportivo extends Carro { // Herda de Carro
         }
     }
 
-     // Sobrescreve frear (opcionalmente mais forte)
      frear() {
         if (this.ligado) {
             this.velocidade -= 15;
@@ -528,10 +488,9 @@ class CarroEsportivo extends Carro { // Herda de Carro
     }
 
     desligar() {
-        super.desligar(); // Chama o desligar do Carro (que zera velocidade)
-        this.desativarTurbo(); // Desativa o turbo ao desligar
+        super.desligar();
+        this.desativarTurbo();
     }
-
 
     buzinar() {
         console.log(`${this.modelo} buzina: Vruum Vruum! (Esportivo)`);
@@ -540,7 +499,7 @@ class CarroEsportivo extends Carro { // Herda de Carro
 
     atualizarTurboNaTela() {
         if (!this.painelElement) return;
-        const turboSpan = this.painelElement.querySelector('span[id^="turbo"]'); // Procura span id começando com turbo
+        const turboSpan = this.painelElement.querySelector('span[id^="turbo"]');
         if (turboSpan) {
             turboSpan.textContent = this.turboAtivado ? "Ativado" : "Desativado";
         } else {
@@ -548,43 +507,37 @@ class CarroEsportivo extends Carro { // Herda de Carro
         }
     }
 
-     // Sobrescreve para incluir atualização de turbo
      associarPainel() {
-        super.associarPainel(); // Chama o associarPainel do Carro
+        super.associarPainel();
         if (this.painelElement) {
-            this.atualizarTurboNaTela(); // Garante que o status do turbo seja exibido
+            this.atualizarTurboNaTela();
         }
     }
 }
 
-// --- Classe Caminhao ---
-class Caminhao extends Carro { // Herda de Carro para reusar velocidade, etc.
+class Caminhao extends Carro {
     constructor(modelo, cor, capacidadeCarga) {
-        super(modelo, cor); // Chama construtor do Carro
-         // Sobrescreve painelId e imagemSrc
+        super(modelo, cor);
         this.painelId = 'informacoesCaminhao';
         this.imagemSrc = 'imagens/caminhao.jpg';
         this.capacidadeCarga = capacidadeCarga;
         this.cargaAtual = 0;
-        this.somBuzinaId = "somBuzinaCaminhao"; // Som diferente
+        this.somBuzinaId = "somBuzinaCaminhao";
     }
 
-     // Sobrescreve Aceleração (mais lenta, afetada pela carga)
      acelerar() {
         if (this.ligado) {
-            // Aceleração diminui com mais carga
-            const fatorCarga = Math.max(0.3, 1 - (this.cargaAtual / (this.capacidadeCarga * 1.5))); // Exemplo de fator
+            const fatorCarga = Math.max(0.3, 1 - (this.cargaAtual / (this.capacidadeCarga * 1.5)));
             const incremento = Math.round(8 * fatorCarga);
-            this.velocidade += incremento > 0 ? incremento : 1; // Acelera pelo menos 1
+            this.velocidade += incremento > 0 ? incremento : 1;
             console.log(`${this.modelo} acelerando (carga: ${this.cargaAtual}kg)! Velocidade: ${this.velocidade} km/h`);
-            this.playSom("somAceleracao"); // Talvez um som diferente?
+            this.playSom("somAceleracao");
             this.atualizarVelocidadeNaTela();
         } else {
             alert("Ligue o caminhão para acelerar!");
         }
     }
 
-    // Sobrescreve Freio (menos eficaz com carga)
     frear() {
         if (this.ligado) {
              const fatorCarga = Math.max(0.5, 1 - (this.cargaAtual / (this.capacidadeCarga * 2)));
@@ -600,12 +553,10 @@ class Caminhao extends Carro { // Herda de Carro para reusar velocidade, etc.
 
     carregar(quantidade) {
         if (!this.ligado) {
-             alert("Ligue o caminhão para carregar!");
-             return;
+             alert("Ligue o caminhão para carregar!"); return;
         }
         if (typeof quantidade !== 'number' || quantidade <= 0 || isNaN(quantidade)) {
-            alert("Quantidade inválida para carregar.");
-            return;
+            alert("Quantidade inválida para carregar."); return;
         }
         if (this.cargaAtual + quantidade <= this.capacidadeCarga) {
             this.cargaAtual += quantidade;
@@ -618,12 +569,10 @@ class Caminhao extends Carro { // Herda de Carro para reusar velocidade, etc.
 
     descarregar(quantidade) {
          if (!this.ligado) {
-             alert("Ligue o caminhão para descarregar!");
-             return;
+             alert("Ligue o caminhão para descarregar!"); return;
         }
          if (typeof quantidade !== 'number' || quantidade <= 0 || isNaN(quantidade)) {
-            alert("Quantidade inválida para descarregar.");
-            return;
+            alert("Quantidade inválida para descarregar."); return;
         }
         if (this.cargaAtual - quantidade >= 0) {
             this.cargaAtual -= quantidade;
@@ -643,190 +592,120 @@ class Caminhao extends Carro { // Herda de Carro para reusar velocidade, etc.
         if (!this.painelElement) return;
         const cargaAtualSpan = this.painelElement.querySelector('#cargaAtualCaminhao');
         const capacidadeSpan = this.painelElement.querySelector('#capacidadeCargaCaminhao');
-        if (cargaAtualSpan) {
-             cargaAtualSpan.textContent = this.cargaAtual;
-        } else {
-            console.warn(`Span #cargaAtualCaminhao não encontrado no painel ${this.painelId}`);
-        }
-        if (capacidadeSpan) {
-             capacidadeSpan.textContent = this.capacidadeCarga; // Capacidade pode ser estática, mas atualiza aqui tb
-        } else {
-             console.warn(`Span #capacidadeCargaCaminhao não encontrado no painel ${this.painelId}`);
-        }
+        if (cargaAtualSpan) cargaAtualSpan.textContent = this.cargaAtual;
+        else console.warn(`Span #cargaAtualCaminhao não encontrado no painel ${this.painelId}`);
+        if (capacidadeSpan) capacidadeSpan.textContent = this.capacidadeCarga;
+        else console.warn(`Span #capacidadeCargaCaminhao não encontrado no painel ${this.painelId}`);
     }
 
-    // Sobrescreve para incluir carga e capacidade
      associarPainel() {
-        super.associarPainel(); // Chama o associarPainel do Carro
+        super.associarPainel();
         if (this.painelElement) {
-            this.atualizarCargaNaTela(); // Garante que a carga seja exibida
+            this.atualizarCargaNaTela();
         }
     }
 }
-
 
 // ------------------------------------
 // ---- API SIMULADA (FUNÇÃO) ----
 // ------------------------------------
-
-/**
- * Busca detalhes extras de um veículo na API simulada (arquivo JSON local).
- * @param {string} identificadorVeiculo - O identificador único do veículo (neste caso, o modelo) para buscar.
- * @returns {Promise<object|null>} Uma Promise que resolve com o objeto de detalhes do veículo encontrado ou null se não encontrado ou em caso de erro.
- */
 async function buscarDetalhesVeiculoAPI(identificadorVeiculo) {
-  console.log(`Buscando detalhes (API simulada) para: ${identificadorVeiculo}`); // Log para debug
+  console.log(`Buscando detalhes (API simulada) para: ${identificadorVeiculo}`);
   try {
-    const response = await fetch('./dados_veiculos_api.json'); // Caminho relativo ao HTML
-
+    const response = await fetch('./dados_veiculos_api.json');
     if (!response.ok) {
-      // Lança um erro que será pego pelo catch
       throw new Error(`Erro HTTP ao buscar dados_veiculos_api.json: ${response.status} ${response.statusText}`);
     }
-
-    // Verifica o tipo de conteúdo para ter certeza que é JSON
     const contentType = response.headers.get("content-type");
     if (!contentType || !contentType.includes("application/json")) {
       throw new TypeError("Oops, não recebemos JSON! Verifique o arquivo 'dados_veiculos_api.json'.");
     }
-
     const detalhesTodosVeiculos = await response.json();
-    // console.log("Dados carregados da API simulada:", detalhesTodosVeiculos); // Descomente para debug
-
-    // Procura pelo veículo específico usando o identificador (modelo, neste caso)
-    // Comparação insensível a maiúsculas/minúsculas pode ser mais robusta:
-    // const detalhesVeiculo = detalhesTodosVeiculos.find(veiculo => veiculo.identificador.toLowerCase() === identificadorVeiculo.toLowerCase());
     const detalhesVeiculo = detalhesTodosVeiculos.find(veiculo => veiculo.identificador === identificadorVeiculo);
-
-
     if (detalhesVeiculo) {
       console.log("Detalhes encontrados:", detalhesVeiculo);
-      return detalhesVeiculo; // Retorna o objeto encontrado
+      return detalhesVeiculo;
     } else {
       console.log(`Nenhum detalhe encontrado para o identificador: ${identificadorVeiculo}`);
-      return null; // Retorna null se não encontrar
+      return null;
     }
-
   } catch (error) {
     console.error("Falha ao buscar/processar detalhes da API simulada:", error);
-    // Retorna null para indicar que a busca falhou
     return null;
   }
 }
-
 
 // ------------------------------------
 // ---- CLASSE GARAGEM ----
 // ------------------------------------
 class Garagem {
     constructor(selecaoContainerId, imagemDisplayId, infoContainerId) {
-        // Propriedades da Garagem
         this.veiculos = [];
         this.veiculoSelecionado = null;
         this.indiceSelecionado = -1;
-
-        // Referências aos elementos do DOM
         this.selecaoContainer = document.getElementById(selecaoContainerId);
         this.imagemDisplay = document.getElementById(imagemDisplayId);
-        this.infoContainer = document.getElementById(infoContainerId); // Div que contém todos os painéis de info
+        this.infoContainer = document.getElementById(infoContainerId);
 
-        // Validação inicial dos elementos do DOM
         if (!this.selecaoContainer || !this.imagemDisplay || !this.infoContainer) {
-            console.error("Erro Crítico: Um ou mais elementos da interface da Garagem não foram encontrados no HTML! Verifique os IDs:", selecaoContainerId, imagemDisplayId, infoContainerId);
-            // Poderia lançar um erro ou desabilitar a funcionalidade
+            console.error("Erro Crítico: Um ou mais elementos da interface da Garagem não foram encontrados!");
             alert("Erro crítico ao inicializar a Garagem. Verifique o console (F12).");
-            return; // Impede a continuação se elementos cruciais faltam
+            return;
         }
 
-        // --- Event Listener para os botões de SELEÇÃO de veículo ---
         this.selecaoContainer.addEventListener('click', (event) => {
             if (event.target.tagName === 'BUTTON' && event.target.dataset.indice) {
                 const indice = parseInt(event.target.dataset.indice, 10);
-                 // Evita re-selecionar o mesmo veículo desnecessariamente
                 if(indice !== this.indiceSelecionado) {
                     this.selecionarVeiculoPorIndice(indice);
                 }
             }
         });
 
-        // --- Event Listener DELEGADO para os botões de AÇÃO dentro dos painéis de informação ---
-        this.infoContainer.addEventListener('click', async (event) => { // Adicionado async
-            if (!this.veiculoSelecionado || !this.veiculoSelecionado.painelElement) {
-                // Se não há veículo selecionado ou seu painel não está associado, ignora o clique
-                return;
-            }
+        this.infoContainer.addEventListener('click', async (event) => {
+            if (!this.veiculoSelecionado || !this.veiculoSelecionado.painelElement) return;
+            const target = event.target;
+            const targetId = target.id;
+            const painelAtual = this.veiculoSelecionado.painelElement;
 
-            const target = event.target; // O elemento que foi clicado
-            const targetId = target.id; // O ID do elemento clicado (se tiver)
-            const painelAtual = this.veiculoSelecionado.painelElement; // O painel de informações do veículo atual
-
-            // --- Lógica para Ações Comuns ---
-            if (targetId.startsWith('ligarDesligar')) {
-                 if (this.veiculoSelecionado.ligado) {
-                    this.veiculoSelecionado.desligar();
-                 } else {
-                    this.veiculoSelecionado.ligar();
-                 }
+            // Lógica para Ações Comuns (identificadores podem precisar de ajuste)
+            if (targetId === `ligarDesligar${this.veiculoSelecionado.constructor.name.replace('Carro','')}`) {
+                 if (this.veiculoSelecionado.ligado) this.veiculoSelecionado.desligar();
+                 else this.veiculoSelecionado.ligar();
             }
-            else if (targetId.startsWith('acelerar')) {
-                // Verifica se o método existe antes de chamar (boa prática)
-                if (typeof this.veiculoSelecionado.acelerar === 'function') {
-                    this.veiculoSelecionado.acelerar();
-                }
+            else if (targetId === `acelerar${this.veiculoSelecionado.constructor.name.replace('Carro','')}`) {
+                if (typeof this.veiculoSelecionado.acelerar === 'function') this.veiculoSelecionado.acelerar();
             }
-            else if (targetId.startsWith('frear')) {
-                if (typeof this.veiculoSelecionado.frear === 'function') {
-                    this.veiculoSelecionado.frear();
-                }
+            else if (targetId === `frear${this.veiculoSelecionado.constructor.name.replace('Carro','')}`) {
+                if (typeof this.veiculoSelecionado.frear === 'function') this.veiculoSelecionado.frear();
             }
-             else if (targetId.startsWith('buzinar')) {
-                 if (typeof this.veiculoSelecionado.buzinar === 'function') {
-                    this.veiculoSelecionado.buzinar();
-                 }
+             else if (targetId === `buzinar${this.veiculoSelecionado.constructor.name.replace('Carro','')}`) {
+                 if (typeof this.veiculoSelecionado.buzinar === 'function') this.veiculoSelecionado.buzinar();
             }
-
-            // --- Lógica para Ações Específicas (usando instanceof) ---
+            // Lógica para Ações Específicas
             else if (this.veiculoSelecionado instanceof CarroEsportivo) {
-                if (targetId === 'ativarTurbo') {
-                    this.veiculoSelecionado.ativarTurbo();
-                } else if (targetId === 'desativarTurbo') {
-                    this.veiculoSelecionado.desativarTurbo();
-                }
+                if (targetId === 'ativarTurbo') this.veiculoSelecionado.ativarTurbo();
+                else if (targetId === 'desativarTurbo') this.veiculoSelecionado.desativarTurbo();
             }
             else if (this.veiculoSelecionado instanceof Caminhao) {
                  const quantidadeInput = painelAtual.querySelector('#quantidadeCarga');
                  const quantidade = quantidadeInput ? parseInt(quantidadeInput.value, 10) : NaN;
-
-                 if (targetId === 'carregarCaminhao') {
-                    this.veiculoSelecionado.carregar(quantidade); // A validação da quantidade é feita no método
-                 } else if (targetId === 'descarregarCaminhao') {
-                    this.veiculoSelecionado.descarregar(quantidade); // A validação é feita no método
-                 }
+                 if (targetId === 'carregarCaminhao') this.veiculoSelecionado.carregar(quantidade);
+                 else if (targetId === 'descarregarCaminhao') this.veiculoSelecionado.descarregar(quantidade);
             }
-
-            // --- LÓGICA PARA O BOTÃO "Ver Detalhes Extras" (API Simulada) ---
+            // API Simulada
             else if (target.classList.contains('btn-detalhes-extras')) {
-                console.log("Botão 'Ver Detalhes Extras' clicado para:", this.veiculoSelecionado.modelo);
                 const areaDetalhes = painelAtual.querySelector('.area-detalhes-extras');
                 const botaoDetalhes = target;
-
-                if (!areaDetalhes) {
-                    console.error("Elemento '.area-detalhes-extras' não encontrado dentro do painel:", painelAtual.id);
-                    return;
-                }
-
-                // Feedback visual e prevenção de cliques múltiplos
+                if (!areaDetalhes) { console.error("Elemento '.area-detalhes-extras' não encontrado."); return; }
                 areaDetalhes.innerHTML = '<p><i>Carregando detalhes...</i></p>';
-                botaoDetalhes.disabled = true;
-                botaoDetalhes.textContent = 'Carregando...';
-
+                botaoDetalhes.disabled = true; botaoDetalhes.textContent = 'Carregando...';
                 try {
                     const identificador = this.veiculoSelecionado.modelo;
-                    const detalhes = await buscarDetalhesVeiculoAPI(identificador); // Chama a função assíncrona
-
+                    const detalhes = await buscarDetalhesVeiculoAPI(identificador);
                     if (detalhes) {
                         areaDetalhes.innerHTML = `
-                            <h4>Detalhes Extras (API Simulada):</h4>
+                            <h4>Detalhes Extras:</h4>
                             <p><strong>Valor FIPE:</strong> ${detalhes.valorFIPE || 'N/A'}</p>
                             <p><strong>Recall Pendente:</strong>
                                 ${detalhes.recallPendente
@@ -836,33 +715,23 @@ class Garagem {
                             <p><strong>Última Revisão:</strong> ${detalhes.ultimaRevisao || 'N/A'}</p>
                             <p><strong>Dica:</strong> ${detalhes.dicaManutencao || 'Nenhuma dica disponível.'}</p>
                         `;
-                    } else {
-                        areaDetalhes.innerHTML = '<p style="color:orange;">Detalhes extras não encontrados ou erro ao buscar.</p>';
-                    }
+                    } else { areaDetalhes.innerHTML = '<p style="color:orange;">Detalhes extras não encontrados ou erro ao buscar.</p>'; }
                 } catch (error) {
-                    // Captura erros inesperados durante o processo (embora buscarDetalhesVeiculoAPI já tenha try/catch)
                     console.error("Erro ao exibir detalhes da API:", error);
                     areaDetalhes.innerHTML = '<p style="color:red;">Ocorreu um erro inesperado ao processar os detalhes.</p>';
                 } finally {
-                    // Garante que o botão seja reabilitado e o texto restaurado
-                    botaoDetalhes.disabled = false;
-                    botaoDetalhes.textContent = 'Ver Detalhes Extras';
+                    botaoDetalhes.disabled = false; botaoDetalhes.textContent = 'Ver Detalhes Extras';
                 }
             }
-            // --- FIM DA LÓGICA "Ver Detalhes Extras" ---
-
-        }); // Fim do listener this.infoContainer.addEventListener
-    } // Fim do constructor
+        });
+    }
 
     adicionarVeiculo(veiculo) {
         if (veiculo instanceof Veiculo) {
             this.veiculos.push(veiculo);
             const indice = this.veiculos.length - 1;
             this.criarBotaoSelecao(veiculo, indice);
-
-            // Seleciona o primeiro veículo adicionado automaticamente
             if (this.indiceSelecionado === -1 && this.veiculos.length === 1) {
-                 // Atraso mínimo para garantir que o DOM esteja pronto (embora DOMContentLoaded já ajude)
                  setTimeout(() => this.selecionarVeiculoPorIndice(0), 0);
             }
         } else {
@@ -872,39 +741,24 @@ class Garagem {
 
     criarBotaoSelecao(veiculo, indice) {
         const button = document.createElement('button');
-        // Usar modelo e talvez tipo para o texto do botão
         button.textContent = `${veiculo.modelo} (${veiculo.constructor.name})`;
-        button.dataset.indice = indice; // Guarda o índice no dataset
+        button.dataset.indice = indice;
         this.selecaoContainer.appendChild(button);
     }
 
     selecionarVeiculoPorIndice(indice) {
         if (indice >= 0 && indice < this.veiculos.length) {
-            // Desmarcar botão antigo (se houver um selecionado)
             if (this.indiceSelecionado !== -1) {
                  const btnAntigo = this.selecaoContainer.querySelector(`button[data-indice="${this.indiceSelecionado}"]`);
                  if(btnAntigo) btnAntigo.classList.remove('selecionado');
             }
-
-            // Atualiza o índice e o veículo selecionado
             this.indiceSelecionado = indice;
             this.veiculoSelecionado = this.veiculos[indice];
-
-            // Marcar botão novo
             const btnNovo = this.selecaoContainer.querySelector(`button[data-indice="${this.indiceSelecionado}"]`);
-             if(btnNovo) btnNovo.classList.add('selecionado');
-             else console.warn("Botão de seleção não encontrado para o índice:", indice);
-
-
+            if(btnNovo) btnNovo.classList.add('selecionado');
             console.log(`Veículo selecionado: ${this.veiculoSelecionado.modelo}`);
-
-            // Associa o painel ao objeto veículo (para ele saber onde atualizar)
-            // Isso também chama os métodos de atualização iniciais do veículo (status, vel, etc.)
-            this.veiculoSelecionado.associarPainel();
-
-            // Atualiza a interface geral (imagem, visibilidade do painel)
-            this.atualizarDisplayGeral(); // Isso inclui limpar a área de detalhes extras
-
+            this.veiculoSelecionado.associarPainel(); // Isso deve chamar os métodos de atualização inicial
+            this.atualizarDisplayGeral();
         } else {
             console.error(`Índice de veículo inválido: ${indice}`);
         }
@@ -912,97 +766,68 @@ class Garagem {
 
     atualizarDisplayGeral() {
         if (!this.veiculoSelecionado) {
-            this.imagemDisplay.style.display = 'none';
-            this.imagemDisplay.src = ''; // Limpa src para evitar mostrar imagem antiga rapidamente
-             // Esconde todos os painéis de informação
+            this.imagemDisplay.style.display = 'none'; this.imagemDisplay.src = '';
             Array.from(this.infoContainer.children).forEach(painel => {
-                // Verifica se é uma div e se o ID começa com 'informacoes'
                 if (painel.tagName === 'DIV' && painel.id.startsWith('informacoes')) {
                     painel.style.display = 'none';
-                     // Limpa área de detalhes e reseta botão em TODOS os painéis ao esconder
-                     this.limparAreaDetalhesExtras(painel);
+                    this.limparAreaDetalhesExtras(painel);
                 }
             });
             return;
         }
-
-        // Atualiza a imagem
         this.imagemDisplay.src = this.veiculoSelecionado.imagemSrc;
         this.imagemDisplay.alt = `Imagem de ${this.veiculoSelecionado.modelo}`;
         this.imagemDisplay.style.display = 'block';
 
-        // Esconde todos os painéis e mostra apenas o do veículo selecionado
         Array.from(this.infoContainer.children).forEach(painel => {
              if (painel.tagName === 'DIV' && painel.id.startsWith('informacoes')) {
                  const deveMostrar = (painel.id === this.veiculoSelecionado.painelId);
                  painel.style.display = deveMostrar ? 'block' : 'none';
-                 // Limpa a área de detalhes de todos os painéis, incluindo o que vai ser mostrado
-                 // (garante estado inicial limpo)
-                 this.limparAreaDetalhesExtras(painel);
+                 this.limparAreaDetalhesExtras(painel); // Limpa mesmo o que vai ser mostrado
             }
         });
-
-         // A chamada a this.veiculoSelecionado.associarPainel() dentro de selecionarVeiculoPorIndice
-         // já deve ter atualizado os dados básicos (modelo, cor, status inicial, etc.).
-         // Se houver necessidade de re-atualizar algo específico aqui, pode ser feito.
-         // Ex: this.veiculoSelecionado.atualizarVelocidadeNaTela?.();
+        // Garante que os métodos de atualização específicos do veículo (velocidade, turbo, carga) são chamados
+        // após o painel correto ser associado e tornado visível.
+        this.veiculoSelecionado.atualizarStatusNaTela?.(); // Chamada segura
+        this.veiculoSelecionado.atualizarBotaoLigarDesligar?.();
+        this.veiculoSelecionado.atualizarVelocidadeNaTela?.();
+        if(this.veiculoSelecionado instanceof CarroEsportivo) this.veiculoSelecionado.atualizarTurboNaTela?.();
+        if(this.veiculoSelecionado instanceof Caminhao) this.veiculoSelecionado.atualizarCargaNaTela?.();
     }
 
-    /**
-     * Limpa a área de detalhes extras e reseta o botão correspondente dentro de um painel específico.
-     * @param {HTMLElement} painelElement O elemento do painel onde procurar.
-     */
     limparAreaDetalhesExtras(painelElement) {
         if (!painelElement) return;
         const areaDetalhes = painelElement.querySelector('.area-detalhes-extras');
         const botaoDetalhes = painelElement.querySelector('.btn-detalhes-extras');
-
-        if (areaDetalhes) {
-            areaDetalhes.innerHTML = ''; // Limpa o conteúdo HTML
-        }
+        if (areaDetalhes) areaDetalhes.innerHTML = '';
         if (botaoDetalhes) {
-            botaoDetalhes.disabled = false; // Reabilita o botão
-            botaoDetalhes.textContent = 'Ver Detalhes Extras'; // Restaura o texto original
+            botaoDetalhes.disabled = false;
+            botaoDetalhes.textContent = 'Ver Detalhes Extras';
         }
     }
-
-
-    getVeiculoSelecionado() {
-        return this.veiculoSelecionado;
-    }
-} // Fim da classe Garagem
+    getVeiculoSelecionado() { return this.veiculoSelecionado; }
+}
 
 // ------------------------------------
 // ---- INICIALIZAÇÃO E EVENTOS GLOBAIS ----
 // ------------------------------------
-
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOM completamente carregado e parseado.");
 
-    // --- Inicialização da Garagem de Veículos ---
     try {
-        const minhaGaragem = new Garagem(
-            'selecaoGaragem',
-            'imagemVeiculoAtual',
-            'informacoesVeiculoContainer'
-        );
-
+        const minhaGaragem = new Garagem('selecaoGaragem', 'imagemVeiculoAtual', 'informacoesVeiculoContainer');
         minhaGaragem.adicionarVeiculo(new CarroEsportivo("BMW M3 Competition", "Cinza"));
         minhaGaragem.adicionarVeiculo(new Caminhao("Scania R450", "Branco", 15000));
-        minhaGaragem.adicionarVeiculo(new Carro("Corola do Novo", "Branco"));
-
+        minhaGaragem.adicionarVeiculo(new Carro("Corolla Novo", "Branco")); // Corrigido o nome para consistência
         console.log("Garagem inicializada e veículos adicionados.");
-
     } catch (error) {
         console.error("Erro durante a inicialização da Garagem:", error);
         alert("Ocorreu um erro grave ao iniciar a Garagem. Verifique o console (F12).");
-        // Considerar não sobrescrever o body inteiro em caso de erro se outras partes da página podem funcionar
-        // document.body.innerHTML = '<h1 style="color: red;">Erro ao carregar a Garagem</h1><p>Por favor, verifique o console para mais detalhes.</p>';
     }
 
-    // --- Event Listener para o botão de Previsão do Tempo Detalhada (5 dias) ---
+    // --- Event Listener para Previsão do Tempo Detalhada ---
     const verificarClimaBtn = document.getElementById('verificar-clima-btn');
-    const cidadeInputForecast = document.getElementById('cidade-input'); // Renomeado para clareza
+    const cidadeInputForecast = document.getElementById('cidade-input');
     const previsaoStatusDiv = document.getElementById('previsao-status');
     const previsaoResultadoDiv = document.getElementById('previsao-tempo-resultado');
 
@@ -1011,41 +836,33 @@ document.addEventListener('DOMContentLoaded', () => {
             const cidade = cidadeInputForecast.value.trim();
             if (!cidade) {
                 previsaoStatusDiv.textContent = "Por favor, digite o nome de uma cidade.";
-                previsaoResultadoDiv.innerHTML = ''; 
-                return;
+                previsaoResultadoDiv.innerHTML = ''; return;
             }
-
             previsaoStatusDiv.textContent = "Carregando previsão detalhada...";
-            previsaoResultadoDiv.innerHTML = ''; 
-            verificarClimaBtn.disabled = true;
-
+            previsaoResultadoDiv.innerHTML = ''; verificarClimaBtn.disabled = true;
             try {
-                const dadosApi = await buscarPrevisaoDetalhada(cidade);
+                const dadosApi = await buscarPrevisaoDetalhada(cidade); // nomeCidadeAtualForecast é setado aqui
                 if (dadosApi) {
                     const previsaoProcessada = processarDadosForecast(dadosApi);
                     if (previsaoProcessada) {
-                        exibirPrevisaoDetalhada(previsaoProcessada, dadosApi.city.name || cidade); 
-                        previsaoStatusDiv.textContent = ''; 
-                    } else {
-                        previsaoStatusDiv.textContent = "Não foi possível processar os dados da previsão detalhada.";
-                    }
-                } else {
-                    if (!previsaoStatusDiv.textContent) { 
-                        previsaoStatusDiv.textContent = "Erro ao buscar previsão detalhada. Verifique o console.";
+                        dadosCompletosForecast = previsaoProcessada; // Armazena para filtragem
+                        // Usar nomeCidadeAtualForecast que foi pego da API ou fallback para 'cidade' (input)
+                        exibirPrevisaoDetalhada(dadosCompletosForecast, nomeCidadeAtualForecast || cidade, numeroDeDiasAtual);
+                        previsaoStatusDiv.textContent = '';
+                    } else { previsaoStatusDiv.textContent = "Não foi possível processar os dados da previsão."; }
+                } else { /* Erro já tratado em buscarPrevisaoDetalhada ou mensagem genérica se necessário */
+                    if (!previsaoStatusDiv.textContent.toLowerCase().includes('erro')) {
+                        previsaoStatusDiv.textContent = "Erro ao buscar previsão. Verifique o nome da cidade ou console.";
                     }
                 }
-            } catch (error) { 
+            } catch (error) {
                 console.error("Erro no fluxo de verificação da previsão detalhada:", error);
                 previsaoStatusDiv.textContent = `Erro: ${error.message}`;
-            } finally {
-                verificarClimaBtn.disabled = false;
-            }
+            } finally { verificarClimaBtn.disabled = false; }
         });
-    } else {
-        console.error("Elementos da UI para previsão do tempo detalhada não foram encontrados.");
-    }
+    } else { console.error("Elementos da UI para previsão detalhada não encontrados."); }
 
-    // --- Event Listener para o botão de Planejar Viagem (Clima Atual) ---
+    // --- Event Listener para Clima Atual da Viagem ---
     const verificarClimaViagemBtn = document.getElementById('verificar-clima-viagem-btn');
     const destinoViagemInput = document.getElementById('destino-viagem-input');
     const climaViagemStatusDiv = document.getElementById('clima-viagem-status');
@@ -1056,49 +873,49 @@ document.addEventListener('DOMContentLoaded', () => {
             const cidadeDestino = destinoViagemInput.value.trim();
             if (!cidadeDestino) {
                 climaViagemStatusDiv.textContent = "Por favor, digite a cidade de destino.";
-                climaViagemResultadoDiv.innerHTML = '';
-                return;
+                climaViagemResultadoDiv.innerHTML = ''; return;
             }
-
             climaViagemStatusDiv.textContent = "Buscando clima atual...";
-            climaViagemResultadoDiv.innerHTML = '';
-            verificarClimaViagemBtn.disabled = true;
-
+            climaViagemResultadoDiv.innerHTML = ''; verificarClimaViagemBtn.disabled = true;
             try {
                 const dadosClima = await buscarClimaAtualViagem(cidadeDestino);
                 if (dadosClima) {
                     exibirClimaAtualViagem(dadosClima, cidadeDestino);
                     climaViagemStatusDiv.textContent = '';
                 } else {
-                    // buscarClimaAtualViagem já deve ter setado o erro no statusDiv
-                     if (!climaViagemStatusDiv.textContent) { 
+                     if (!climaViagemStatusDiv.textContent.toLowerCase().includes('erro')) {
                         climaViagemStatusDiv.textContent = "Erro ao buscar clima atual. Verifique o console.";
                     }
                 }
             } catch (error) {
                 console.error("Erro no fluxo de verificação do clima da viagem:", error);
                 climaViagemStatusDiv.textContent = `Erro: ${error.message}`;
-            } finally {
-                verificarClimaViagemBtn.disabled = false;
+            } finally { verificarClimaViagemBtn.disabled = false; }
+        });
+    } else { console.error("Elementos da UI para Planejador de Viagem não encontrados."); }
+
+    // --- Event Listeners para Interatividade da Previsão do Tempo ---
+    const botoesFiltroPrevisao = document.querySelectorAll('#filtros-previsao-dias .btn-filtro-previsao');
+    const checkDestaqueChuva = document.getElementById('check-destaque-chuva');
+
+    botoesFiltroPrevisao.forEach(botao => {
+        botao.addEventListener('click', () => {
+            botoesFiltroPrevisao.forEach(b => b.classList.remove('ativo'));
+            botao.classList.add('ativo');
+            numeroDeDiasAtual = parseInt(botao.dataset.dias);
+            if (dadosCompletosForecast.length > 0) {
+                // Usar nomeCidadeAtualForecast que foi pego da última API ou fallback
+                exibirPrevisaoDetalhada(dadosCompletosForecast, nomeCidadeAtualForecast || "a cidade", numeroDeDiasAtual);
             }
         });
-    } else {
-        console.error("Elementos da UI para o Planejador de Viagem (Clima Atual) não foram encontrados.");
-    }
+    });
 
-    // Exemplo de como adicionar manutenção (se a classe Manutencao existir e for definida)
-    /*
-    if (typeof Manutencao !== 'undefined' && minhaGaragem && minhaGaragem.veiculos.length > 0) {
-        const veiculoParaManut = minhaGaragem.veiculos[0]; // Pega o primeiro veículo (BMW)
-        if(veiculoParaManut) {
-            const manutOleo = new Manutencao('2024-01-15', 'Troca de Óleo', 350.00, 'Óleo 5w30 Sintético');
-            if (veiculoParaManut.adicionarManutencao(manutOleo)) {
-                 // Exibe histórico no console se a adição foi bem-sucedida
-                console.log(`\nHistórico ${veiculoParaManut.modelo}:`);
-                veiculoParaManut.getHistoricoManutencoesFormatado().forEach(m => console.log(`- ${m}`));
+    if (checkDestaqueChuva) {
+        checkDestaqueChuva.addEventListener('change', () => {
+            if (dadosCompletosForecast.length > 0) {
+                 // Usar nomeCidadeAtualForecast que foi pego da última API ou fallback
+                exibirPrevisaoDetalhada(dadosCompletosForecast, nomeCidadeAtualForecast || "a cidade", numeroDeDiasAtual);
             }
-        }
+        });
     }
-    */
-
-}); // Fim do DOMContentLoaded
+});
