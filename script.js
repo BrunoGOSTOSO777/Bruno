@@ -8,7 +8,7 @@
 // ------------------------------------
 // ---- OPENWEATHERMAP API CONFIG ----
 // ------------------------------------
-const openWeatherApiKey = "e7b530ba5429936b7b96cf5f5b7a72ae"; // <-- SUBSTITUA PELA SUA CHAVE REAL SE NECESSÁRIO
+/*const openWeatherApiKey = "e7b530ba5429936b7b96cf5f5b7a72ae"; // <-- SUBSTITUA PELA SUA CHAVE REAL SE NECESSÁRIO*/
 
 // ------------------------------------
 // ---- VARIÁVEIS GLOBAIS PARA INTERATIVIDADE DA PREVISÃO ----
@@ -96,25 +96,49 @@ function exibirClimaAtualViagem(dadosClima, nomeCidadeInput) {
 // ------------------------------------
 async function buscarPrevisaoDetalhada(cidade) {
     const statusDiv = document.getElementById('previsao-status');
-    if (!openWeatherApiKey || openWeatherApiKey === "SUA_CHAVE_OPENWEATHERMAP_AQUI") {
-        console.error("Chave da API OpenWeatherMap não configurada.");
-        if (statusDiv) statusDiv.textContent = "Erro: Chave da API não configurada. Verifique o console.";
-        return null;
-    }
-    const url = `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(cidade)}&appid=${openWeatherApiKey}&units=metric&lang=pt_br`;
+    const resultadoDiv = document.getElementById('previsao-tempo-resultado'); // Adicionado para consistência
+
+    // REMOVIDO: Verificação da API KEY no frontend
+    // if (!openWeatherApiKey || openWeatherApiKey === "SUA_CHAVE_OPENWEATHERMAP_AQUI") {
+    //     console.error("Chave da API OpenWeatherMap não configurada.");
+    //     if (statusDiv) statusDiv.textContent = "Erro: Chave da API não configurada. Verifique o console.";
+    //     return null;
+    // }
+
+    // ALTERADO: A URL agora aponta para o seu servidor backend
+    const url = `http://localhost:3001/api/previsao/${encodeURIComponent(cidade)}`;
+    // Atenção à porta! Deve ser a porta do seu server.js (3001 por padrão no código fornecido)
+
+    if (statusDiv) statusDiv.textContent = 'Buscando previsão...'; // Exibir status de busca
+    if (resultadoDiv) resultadoDiv.innerHTML = ''; // Limpar resultados anteriores
+
     try {
+        console.log(`[Frontend] Chamando backend: ${url}`); // Log para depuração
         const response = await fetch(url);
-        const data = await response.json();
+
         if (!response.ok) {
-            const errorMessage = data.message || `Erro HTTP: ${response.status}`;
-            console.error(`Erro ao buscar previsão: ${errorMessage}`, data);
+            // Tenta pegar a mensagem de erro do JSON enviado pelo backend
+            const errorData = await response.json().catch(() => ({}));
+            // Prioriza a mensagem de erro do backend, senão uma mensagem genérica
+            const errorMessage = errorData.error || `Erro ${response.status} ao buscar previsão no servidor.`;
+            console.error(`[Frontend] Erro da API do backend: ${errorMessage}`, errorData);
             throw new Error(errorMessage);
         }
+
+        const data = await response.json();
+        console.log("[Frontend] Dados da previsão recebidos do backend:", data);
+
+        if (!data || !data.city || !data.list) { // Verificação básica da estrutura da resposta
+            console.error("[Frontend] Resposta do backend não contém os dados esperados:", data);
+            throw new Error("Resposta do backend inválida ou incompleta.");
+        }
+
         nomeCidadeAtualForecast = data.city.name || cidade; // Armazena o nome da cidade retornado pela API
-        return data;
+        return data; // Retorna os dados completos da API OpenWeatherMap (já que o backend repassa tudo)
+
     } catch (error) {
-        console.error("Falha na requisição da previsão do tempo:", error);
-        if (statusDiv) statusDiv.textContent = `Erro ao buscar previsão: ${error.message}. Verifique o nome da cidade ou sua conexão.`;
+        console.error("[Frontend] Falha na requisição da previsão do tempo ao backend:", error);
+        if (statusDiv) statusDiv.textContent = `Erro ao buscar previsão: ${error.message}.`;
         return null;
     }
 }
