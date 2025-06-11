@@ -1,418 +1,133 @@
-/* Adicione ou ajuste estes estilos no seu style.css */
-
+/* Estilos gerais da página - Baseado no seu CSS */
 body {
-  font-family: Arial, sans-serif;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
-  background-color: #f4f4f4;
-}
-
-h1, h2, h3 {
-  text-align: center;
-  color: #333;
-}
-
-/* --- Seção Planejar Viagem (Clima Atual) --- */
-#secaoPlanejarViagem {
-  width: 80%;
-  max-width: 700px;
-  margin-bottom: 30px;
-  padding: 20px;
-  background-color: #f0fff0;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-  text-align: center;
-}
-
-#secaoPlanejarViagem input[type="text"] {
-  padding: 10px;
-  font-size: 1em;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  margin-right: 10px;
-  width: calc(60% - 22px);
-  min-width: 150px;
-}
-
-#secaoPlanejarViagem button {
-  padding: 10px 20px;
-  font-size: 1em;
-  background-color: #20c997;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-#secaoPlanejarViagem button:hover {
-  background-color: #1baa80;
-}
-
-#secaoPlanejarViagem button:disabled,
-#secaoPrevisaoTempo button:disabled { /* Aplicado a ambos os botões de busca */
-  background-color: #a0a0a0;
-  cursor: not-allowed;
-}
-
-#clima-viagem-resultado h3 {
-  margin-top: 20px;
-  margin-bottom: 15px;
-  color: #1baa80;
-}
-
-.clima-atual-cartao {
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 20px;
-  margin-top: 15px;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
-  align-items: center;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  text-align: left;
-}
-
-.clima-principal {
-  text-align: center;
-  margin-bottom: 15px;
-  flex-basis: 40%;
-  min-width: 180px;
-}
-
-.clima-principal img {
-  width: 80px;
-  height: 80px;
-}
-
-.temperatura-atual {
-  font-size: 2.5em;
-  font-weight: bold;
-  margin: 5px 0;
-  color: #333;
-}
-
-.descricao-clima-atual {
-  text-transform: capitalize;
-  font-size: 1.1em;
-  color: #555;
-  margin-top: 5px;
-}
-
-.clima-detalhes {
-  flex-basis: 55%;
-  min-width: 200px;
-}
-
-.clima-detalhes p {
-  margin: 8px 0;
-  font-size: 0.95em;
-  color: #444;
-  border-bottom: 1px dashed #eee;
-  padding-bottom: 5px;
-}
-.clima-detalhes p:last-child {
-  border-bottom: none;
-}
-
-.clima-detalhes strong {
-  color: #222;
-}
-
-/* --- Seção de Previsão do Tempo Detalhada (5 dias) --- */
-#secaoPrevisaoTempo {
-  width: 80%;
-  max-width: 700px;
-  margin-bottom: 30px;
-  padding: 20px;
-  background-color: #e0efff;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
-  text-align: center;
-}
-
-#secaoPrevisaoTempo input[type="text"] {
-  padding: 10px;
-  font-size: 1em;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  margin-right: 10px;
-  width: calc(50% - 22px); /* Ajustado para dar mais espaço aos filtros */
-  min-width: 150px;
-}
-
-#secaoPrevisaoTempo button#verificar-clima-btn {
-  padding: 10px 20px;
-  font-size: 1em;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-#secaoPrevisaoTempo button#verificar-clima-btn:hover {
-  background-color: #0056b3;
-}
-
-.status-message {
-  margin-top: 10px;
-  font-style: italic;
-  color: #555;
-  min-height: 1.2em;
-}
-
-#previsao-tempo-resultado h3 {
-  margin-top: 20px;
-  margin-bottom: 15px;
-  color: #0056b3;
-}
-
-.previsao-dias-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
-  gap: 15px;
-  margin-top: 10px;
-}
-
-.previsao-dia-item {
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  padding: 15px;
-  text-align: center;
-  min-width: 120px;
-  flex: 1 1 120px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  transition: background-color 0.3s ease, border 0.3s ease; /* Para o destaque de chuva */
-}
-
-.previsao-dia-item h4 {
-  margin-top: 0;
-  margin-bottom: 8px;
-  font-size: 1.1em;
-  color: #333;
-}
-
-.previsao-dia-item img {
-  width: 50px;
-  height: 50px;
-  margin-bottom: 5px;
-}
-
-.previsao-dia-item p {
-  margin: 5px 0;
-  font-size: 0.95em;
-  color: #444;
-}
-.previsao-dia-item .descricao-clima {
-  text-transform: capitalize;
-  font-style: italic;
-  color: #666;
-  min-height: 2.5em;
-}
-
-.previsao-dia-item .temp-min {
-  color: #1a73e8;
-  font-weight: bold;
-}
-
-.previsao-dia-item .temp-max {
-  color: #d93025;
-  font-weight: bold;
-}
-
-/* --- ESTILOS PARA NOVAS INTERATIVIDADES DA PREVISÃO --- */
-#filtros-previsao-dias button.btn-filtro-previsao {
-    background-color: #6c757d;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    margin: 0 5px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9em;
-    transition: background-color 0.2s ease;
-}
-
-#filtros-previsao-dias button.btn-filtro-previsao:hover {
-    background-color: #5a6268;
-}
-
-#filtros-previsao-dias button.btn-filtro-previsao.ativo {
-    background-color: #007bff;
-    font-weight: bold;
-}
-
-#destaques-previsao label {
-    cursor: pointer;
-    font-size: 0.95em;
+    font-family: Arial, sans-serif;
+    background-color: #f0f2f5;
     color: #333;
-}
-#destaques-previsao input[type="checkbox"] {
-    margin-right: 5px;
-    vertical-align: middle;
-}
-
-.previsao-dia-item.dia-chuvoso-destaque {
-    background-color: #cfe2ff; /* Um azul bem claro para chuva */
-    border: 2px solid #007bff;
-    box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    align-items: flex-start;
 }
 
-.previsao-dia-item.dia-chuvoso-destaque h4 {
+/* Container principal - Substitui a #garagem única */
+#garagem-principal {
+    width: 100%;
+    max-width: 1200px;
+    text-align: center;
+}
+
+h1 {
     color: #0056b3;
-}
-/* --- FIM ESTILOS INTERATIVIDADES PREVISÃO --- */
-
-
-/* --- Seleção da Garagem --- */
-#selecaoGaragem {
-  margin-bottom: 20px;
-  padding: 15px;
-  background-color: #e9e9e9;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  width: 80%;
-  max-width: 700px;
+    margin-bottom: 30px;
 }
 
-#selecaoGaragem h2 {
-  width: 100%;
-  margin-bottom: 10px;
-  font-size: 1.2em;
+.container-veiculos {
+    display: flex;
+    justify-content: center;
+    gap: 30px; /* Espaço entre os cards */
+    flex-wrap: wrap; /* Em telas menores, os cards ficam um embaixo do outro */
+    align-items: stretch; /* Garante que os cards na mesma linha tenham a mesma altura */
 }
 
-#selecaoGaragem button {
-  background-color: #007bff;
-  margin: 5px;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  padding: 10px 15px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+/* Estilo para cada "aba" ou card de veículo */
+.veiculo-card {
+    background-color: white;
+    padding: 20px 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 320px;
+    display: flex;
+    flex-direction: column;
 }
 
-#selecaoGaragem button:hover {
-  background-color: #0056b3;
+.veiculo-card h2 {
+    color: #333;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+    margin-top: 0;
 }
 
-#selecaoGaragem button.selecionado {
-  background-color: #28a745;
-  border: 2px solid #1e7e34;
-  font-weight: bold;
+/* ===== NOVO CÓDIGO PARA ALINHAR AS IMAGENS ===== */
+.veiculo-card img {
+    width: 100%;             /* Faz a imagem ocupar toda a largura do card */
+    height: 200px;            /* DEFINE UMA ALTURA FIXA PARA TODAS AS IMAGENS - A CHAVE DO ALINHAMENTO! */
+    object-fit: cover;        /* Redimensiona a imagem para cobrir a área, mantendo a proporção (sem distorcer). */
+    border-radius: 8px;       /* Cantos arredondados para combinar com o card */
+    margin-bottom: 20px;      /* Espaço entre a imagem e o painel de status abaixo */
+    background-color: #eee;   /* Cor de fundo caso a imagem falhe ou seja transparente */
+}
+/* ================================================== */
+
+/* Estilo do painel de informações, baseado no seu #statusCarro */
+.status-painel {
+    background-color: #e9ecef;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: auto; /* Empurra os botões para o final do card */
+    text-align: left;
+    flex-grow: 1; 
 }
 
-#areaImagemVeiculo {
-  margin-bottom: 20px;
-  text-align: center;
-  min-height: 310px;
+.status-painel p {
+    margin: 8px 0;
 }
 
-#imagemVeiculoAtual {
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: #fff;
-  padding: 5px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  max-width: 100%; /* Para responsividade da imagem */
-  height: auto; /* Manter proporção */
+/* Destaque para o status do turbo quando ligado */
+.status-turbo {
+    font-weight: bold;
+    color: #dc3545;
 }
 
-#informacoesVeiculoContainer {
-  width: 80%;
-  max-width: 600px;
-  margin-top: 20px;
-  position: relative;
+/* Container de botões, baseado no seu #botoesControle */
+.botoes-controle {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
 }
 
-#informacoesCarro,
-#informacoesCarroEsportivo,
-#informacoesCaminhao {
-  border: 1px solid #ccc;
-  padding: 20px;
-  width: 100%;
-  box-sizing: border-box;
-  text-align: center;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+/* Estilos para botões, baseados no seu CSS */
+.botoes-controle button, .carga-controle button {
+    padding: 10px 15px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    flex-basis: 45%; 
+    flex-grow: 1;
 }
 
-#informacoesVeiculoContainer button {
-  margin: 8px 5px;
-  padding: 10px 15px;
-  font-size: 1em;
-  cursor: pointer;
-  background-color: #5cb85c;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  transition: background-color 0.2s ease;
+/* Cores específicas dos botões */
+[id$="-ligar"] { background-color: #28a745; }
+[id$="-ligar"]:hover { background-color: #218838; }
+
+[id$="-desligar"] { background-color: #dc3545; }
+[id$="-desligar"]:hover { background-color: #c82333; }
+
+[id$="-acelerar"], [id$="-frear"], [id$="-buzinar"] { background-color: #007bff; }
+[id$="-acelerar"]:hover, [id$="-frear"]:hover, [id$="-buzinar"]:hover { background-color: #0056b3; }
+
+[id*="-turbo"] { background-color: #ff9800; }
+[id*="-turbo"]:hover { background-color: #e68900; }
+
+/* Novos controles de carga para o caminhão */
+.carga-controle {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
 }
-
-#informacoesVeiculoContainer button:hover {
-  background-color: #4cae4c;
+.carga-controle input {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
 }
-
-/* Estilos específicos para botões de AÇÃO dentro dos painéis de veículos */
-#informacoesCarroEsportivo #ativarTurbo { background-color: #f0ad4e; }
-#informacoesCarroEsportivo #ativarTurbo:hover { background-color: #ec971f; }
-#informacoesCarroEsportivo #desativarTurbo { background-color: #d9534f; }
-#informacoesCarroEsportivo #desativarTurbo:hover { background-color: #c9302c; }
-
-/* Botões de "Ver Detalhes Extras" (cores definidas inline no HTML, mas podem ser movidas para cá) */
-.btn-detalhes-extras {
-    /* Exemplo de como ficaria se movesse o estilo do HTML para cá:
-    background-color: #ffc107; (cor amarela para o Carro Comum)
-    color: black; (ajustado para melhor contraste com amarelo)
-    padding: 8px 12px; (um pouco menor que os botões de ação)
-    font-size: 0.9em;
-    */
+.carga-controle button {
+    background-color: #6c757d;
 }
-.area-detalhes-extras p, .area-detalhes-extras h4 {
-    margin: 5px 0;
-}
-
-
-p {
-  margin: 8px 0;
-  color: #555;
-}
-
-span { /* Span genérico */
-  font-weight: bold;
-  color: #333;
-}
-
-/* Spans específicos dentro de informações do veículo, para evitar conflito com spans de previsão */
-#informacoesVeiculoContainer span {
-    /* Se precisar de estilos específicos para spans de veículos, adicione aqui */
-}
-
-
-input[type="number"]#quantidadeCarga {
-  padding: 8px;
-  font-size: 1em;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  margin-right: 5px;
-  width: 80px;
-}
-
-label[for="quantidadeCarga"] {
-  margin-right: 5px;
-  font-weight: bold;
-  color: #333;
+.carga-controle button:hover {
+    background-color: #5a6268;
 }

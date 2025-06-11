@@ -3,124 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Garagem Interativa com Previsão do Tempo</title>
+    <title>Minha Garagem Virtual Completa</title>
+    <!-- Link para o arquivo de estilos CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Minha Garagem Hiperconectada</h1>
 
-    <!-- Seção Planejar Viagem (Current Weather) -->
-    <div id="secaoPlanejarViagem">
-        <h2>Planejar Viagem (Clima Atual)</h2>
-        <input type="text" id="destino-viagem-input" placeholder="Digite a cidade de destino">
-        <button id="verificar-clima-viagem-btn">Verificar Clima Atual</button>
-        <div id="clima-viagem-status" class="status-message"></div>
-        <div id="clima-viagem-resultado">
-            <!-- Resultados do clima atual da viagem serão inseridos aqui -->
-        </div>
-    </div>
+    <div id="garagem-principal">
+        <h1>Minha Garagem Virtual</h1>
 
-    <!-- Seção de Previsão do Tempo Detalhada (5 Dias Forecast) -->
-    <div id="secaoPrevisaoTempo">
-        <h2>Previsão do Tempo Detalhada (Próximos Dias)</h2>
+        <div class="container-veiculos">
 
-        <!-- INÍCIO DAS NOVAS INTERATIVIDADES -->
-        <div id="filtros-previsao-dias" style="margin-bottom: 15px; text-align: center;">
-            <button data-dias="1" class="btn-filtro-previsao">Hoje</button>
-            <button data-dias="3" class="btn-filtro-previsao">Próximos 3 Dias</button>
-            <button data-dias="5" class="btn-filtro-previsao ativo">Próximos 5 Dias</button>
-        </div>
-        <div id="destaques-previsao" style="margin-bottom: 15px; text-align: center;">
-            <label for="check-destaque-chuva">
-                <input type="checkbox" id="check-destaque-chuva"> Destacar dias com chuva
-            </label>
-        </div>
-        <!-- FIM DAS NOVAS INTERATIVIDADES -->
+            <!-- ===== CARD DO OPALA (VEÍCULO ORIGINAL) ===== -->
+            <div class="veiculo-card">
 
-        <input type="text" id="cidade-input" placeholder="Digite o nome da cidade">
-        <button id="verificar-clima-btn">Ver Previsão Detalhada</button>
-        <div id="previsao-status" class="status-message"></div>
-        <div id="previsao-tempo-resultado">
-            <!-- Resultados da previsão do tempo serão inseridos aqui pelo JS -->
-        </div>
-    </div>
+                <h2>Meu Opala</h2>
 
-    <!-- Área para os botões da garagem serem adicionados pelo JS -->
-    <div id="selecaoGaragem">
-        <h2>Selecione um Veículo:</h2>
-        <!-- Botões serão inseridos aqui -->
-    </div>
+                <img src="imagens/opala.jpg">
 
-    <!-- Imagem movida para fora e centralizada (CSS pode ajustar) -->
-    <div id="areaImagemVeiculo">
-         <img id="imagemVeiculoAtual" src="" alt="Veículo Selecionado" width="300" style="display: none;">
-    </div>
-
-    <!-- As divs de informação permanecem, mas serão controladas pelo JS -->
-    <div id="informacoesVeiculoContainer">
-        <div id="informacoesCarro" style="display: none;">
-            <h2>Carro Comum</h2>
-            <p>Modelo: <span id="modeloCarro"></span></p>
-            <p>Cor: <span id="corCarro"></span></p>
-            <p>Velocidade: <span id="velocidadeCarro">0</span> km/h</p>
-            <p>Status: <span id="statusCarro">Desligado</span></p>
-            <button id="ligarDesligarCarro">Ligar/Desligar</button>
-            <button id="acelerarCarro">Acelerar</button>
-            <button id="frearCarro">Frear</button>
-            <button id="buzinarCarro">Buzinar</button>
-            <button class="btn-detalhes-extras" style="background-color: #ffc107; color: rgb(0, 0, 0);">Ver Detalhes Extras</button>
-            <div class="area-detalhes-extras" style="margin-top: 15px; padding-top: 10px; border-top: 1px dashed #ccc; text-align: left;">
+                <div class="status-painel">
+                    <p><strong>Modelo:</strong> <span id="opala-modelo"></span></p>
+                    <p><strong>Cor:</strong> <span id="opala-cor"></span></p>
+                    <p><strong>Estado:</strong> <span id="opala-estado"></span></p>
+                    <p><strong>Velocidade:</strong> <span id="opala-velocidade"></span> km/h</p>
+                </div>
+                <div class="botoes-controle">
+                    <button id="opala-ligar">Ligar</button>
+                    <button id="opala-desligar">Desligar</button>
+                    <button id="opala-acelerar">Acelerar</button>
+                    <button id="opala-frear">Frear</button>
+                    <button id="opala-buzinar">Buzinar</button>
+                </div>
             </div>
-        </div>
 
-        <div id="informacoesCarroEsportivo" style="display: none;">
-            <h2>Carro Esportivo</h2>
-            <p>Modelo: <span id="modeloCarroEsportivo"></span></p>
-            <p>Cor: <span id="corCarroEsportivo"></span></p>
-            <p>Velocidade: <span id="velocidadeCarroEsportivo">0</span> km/h</p>
-            <p>Status: <span id="statusCarroEsportivo">Desligado</span></p>
-            <p>Turbo: <span id="turboCarroEsportivo">Desativado</span></p>
-            <button id="ligarDesligarCarroEsportivo">Ligar/Desligar</button>
-            <button id="acelerarCarroEsportivo">Acelerar</button>
-            <button id="frearCarroEsportivo">Frear</button>
-            <button id="ativarTurbo">Ativar Turbo</button>
-            <button id="desativarTurbo">Desativar Turbo</button>
-            <button id="buzinarCarroEsportivo">Buzinar</button>
-            <button class="btn-detalhes-extras" style="background-color: #ff3907; color: rgb(255, 255, 255);">Ver Detalhes Extras</button>
-            <div class="area-detalhes-extras" style="margin-top: 15px; padding-top: 10px; border-top: 1px dashed #ccc; text-align: left;">
-            </div>
-        </div>
+            <!-- ===== CARD DO CARRO ESPORTIVO ===== -->
+            <div class="veiculo-card">
 
-        <div id="informacoesCaminhao" style="display: none;">
-            <h2>Caminhão</h2>
-            <p>Modelo: <span id="modeloCaminhao"></span></p>
-            <p>Cor: <span id="corCaminhao"></span></p>
-            <p>Velocidade: <span id="velocidadeCaminhao">0</span> km/h</p>
-            <p>Status: <span id="statusCaminhao">Desligado</span></p>
-            <p>Capacidade de Carga: <span id="capacidadeCargaCaminhao"></span> kg</p>
-            <p>Carga Atual: <span id="cargaAtualCaminhao">0</span> kg</p>
-            <label for="quantidadeCarga">Quantidade de Carga:</label>
-            <input type="number" id="quantidadeCarga" value="1000">
-            <button id="ligarDesligarCaminhao">Ligar/Desligar</button>
-            <button id="acelerarCaminhao">Acelerar</button>
-            <button id="frearCaminhao">Frear</button>
-            <button id="carregarCaminhao">Carregar</button>
-            <button id="descarregarCaminhao">Descarregar</button>
-            <button id="buzinarCaminhao">Buzinar</button>
-            <button class="btn-detalhes-extras" style="background-color: #076aff71; color: rgb(255, 255, 255);">Ver Detalhes Extras</button>
-            <div class="area-detalhes-extras" style="margin-top: 15px; padding-top: 10px; border-top: 1px dashed #ccc; text-align: left;">
+                <h2>Carro Esportivo</h2>
+
+                <img src="imagens/ferrari 488.webp">
+
+                <div class="status-painel">
+                    <p><strong>Modelo:</strong> <span id="esportivo-modelo"></span></p>
+                    <p><strong>Cor:</strong> <span id="esportivo-cor"></span></p>
+                    <p><strong>Estado:</strong> <span id="esportivo-estado"></span></p>
+                    <p><strong>Velocidade:</strong> <span id="esportivo-velocidade"></span> km/h</p>
+                    <p><strong>Turbo:</strong> <span id="esportivo-turbo" class="status-turbo">Desligado</span></p>
+                </div>
+                <div class="botoes-controle">
+                    <button id="esportivo-ligar">Ligar</button>
+                    <button id="esportivo-desligar">Desligar</button>
+                    <button id="esportivo-acelerar">Acelerar</button>
+                    <button id="esportivo-frear">Frear</button>
+                    <button id="esportivo-ativar-turbo">Ativar Turbo</button>
+                    <button id="esportivo-desativar-turbo">Desativar Turbo</button>
+                    <button id="esportivo-buzinar">Buzinar</button>
+                </div>
             </div>
+
+            <!-- ===== CARD DO CAMINHÃO ===== -->
+            <div class="veiculo-card">
+
+                <h2>Caminhão</h2>
+
+                <img src="imagens/scania r450.jpg">
+
+                <div class="status-painel">
+                    <p><strong>Modelo:</strong> <span id="caminhao-modelo"></span></p>
+                    <p><strong>Cor:</strong> <span id="caminhao-cor"></span></p>
+                    <p><strong>Estado:</strong> <span id="caminhao-estado"></span></p>
+                    <p><strong>Velocidade:</strong> <span id="caminhao-velocidade"></span> km/h</p>
+                    <p><strong>Carga:</strong> <span id="caminhao-carga-atual">0</span> / <span id="caminhao-capacidade"></span> kg</p>
+                </div>
+                <div class="botoes-controle">
+                    <button id="caminhao-ligar">Ligar</button>
+                    <button id="caminhao-desligar">Desligar</button>
+                    <button id="caminhao-acelerar">Acelerar</button>
+                    <button id="caminhao-frear">Frear</button>
+                    <button id="caminhao-buzinar">Buzinar</button>
+                </div>
+                <div class="carga-controle">
+                    <input type="number" id="caminhao-input-carga" placeholder="Peso em kg">
+                    <button id="caminhao-carregar">Carregar</button>
+                </div>
+            </div>
+
         </div>
     </div>
 
-    <audio id="somAceleracao" src="som/carroAcelerando.mp3" preload="auto"></audio>
-    <audio id="somLigando" src="som/carroLigando.mp3" preload="auto"></audio>
-    <audio id="somTurbo" src="som/turbo.mp3" preload="auto"></audio>
-    <audio id="somBuzinaCarro" src="som/buzinaCarro.mp3" preload="auto"></audio>
-    <audio id="somBuzinaEsportivo" src="som/buzinaEsportivo.mp3" preload="auto"></audio>
-    <audio id="somBuzinaCaminhao" src="som/buzinaCaminhao.mp3" preload="auto"></audio>
-
-    <script src="Manutencao.js"></script>
     <script src="script.js"></script>
 
 </body>
