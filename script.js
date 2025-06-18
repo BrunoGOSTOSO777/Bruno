@@ -1,170 +1,204 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- PARTE 1: DEFINIÇÃO DAS CLASSES COM HERANÇA ---
-    
-    // Classe base 'Veiculo'
+    function exibirAlerta(mensagem) {
+        alert(mensagem);
+    }
+
+    function tocarSom(idAudio) {
+        const audio = document.getElementById(idAudio);
+        if (audio) {
+            audio.currentTime = 0;
+            audio.play().catch(error => console.log(`Erro ao tocar áudio: ${error}`));
+        } else {
+            console.error(`Áudio com ID '${idAudio}' não encontrado.`);
+        }
+    }
+
+    class Manutencao {
+        constructor(data, tipo, custo, descricao = '') {
+            this.data = data;
+            this.tipo = tipo;
+            this.custo = parseFloat(custo) || 0;
+            this.descricao = descricao;
+        }
+        getFormatado() {
+            const dataFormatada = new Date(this.data + 'T00:00:00').toLocaleDateString('pt-BR');
+            const custoFormatado = this.custo.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            let texto = `${this.tipo} em ${dataFormatada} - ${custoFormatado}`;
+            if (this.descricao) texto += ` (${this.descricao})`;
+            return texto;
+        }
+        validar() {
+            if (!this.data || !this.tipo || isNaN(this.custo) || this.custo < 0) {
+                exibirAlerta("Erro de validação: Data, Tipo e Custo válido são obrigatórios.");
+                return false;
+            }
+            return true;
+        }
+    }
+
     class Veiculo {
-        constructor(modelo, cor) {
-            this.modelo = modelo;
-            this.cor = cor;
-            this.ligado = false;
+        constructor(modelo, cor, imagem) {
+            this.modelo = modelo; this.cor = cor; this.imagem = imagem; this.ligado = false;
+            this.historicoManutencao = [];
         }
-
-        ligar() {
-            if (this.ligado) { console.log(`O ${this.modelo} já está ligado!`); return; }
-            this.ligado = true;
-            console.log(`${this.modelo} ligado! Vrum vrum!`);
+        addManutencao(manutencao) {
+            if (manutencao instanceof Manutencao && manutencao.validar()) {
+                this.historicoManutencao.push(manutencao);
+                this.historicoManutencao.sort((a, b) => new Date(b.data) - new Date(a.data));
+                return true;
+            }
+            return false;
         }
-
-        desligar() {
-            if (!this.ligado) { console.log(`O ${this.modelo} já está desligado.`); return; }
-            this.ligado = false;
-            console.log(`${this.modelo} desligado.`);
+        getHistoricoManutencao() { return this.historicoManutencao; }
+        ligar() { if (this.ligado) { exibirAlerta(`${this.modelo} já está ligado!`); return; } this.ligado = true; tocarSom('audio-ligar'); }
+        desligar() { if (!this.ligado) { exibirAlerta(`${this.modelo} já está desligado.`); return; } this.ligado = false; tocarSom('audio-desligar'); }
+        exibirInformacoes() {
+            const statusVelocidade = typeof this.velocidade !== 'undefined' ? `Velocidade: ${this.velocidade} km/h` : 'Velocidade não aplicável';
+            return `Modelo: ${this.modelo} | Cor: ${this.cor} | Estado: ${this.ligado ? "Ligado" : "Desligado"} | ${statusVelocidade}`;
         }
-        
-        buzinar() { alert("BEEP!"); }
     }
-    
-    // Sua classe Carro, evoluída para herdar de Veiculo e ter o método frear
+
     class Carro extends Veiculo {
-        constructor(modelo, cor) {
-            super(modelo, cor);
-            this.velocidade = 0;
-        }
-
-        desligar() {
-            if (this.velocidade > 0) {
-                alert("Perigo! Desacelere o carro completamente antes de desligar.");
-                return;
-            }
-            super.desligar();
-        }
-
-        acelerar() {
-            if (!this.ligado) { alert("Primeiro você precisa ligar o carro!"); return; }
-            this.velocidade += 10;
-        }
-
-        frear() {
-            this.velocidade = Math.max(0, this.velocidade - 10); // Garante que a velocidade não fique negativa
-        }
-        
-        buzinar() { alert("Bibi! Fon-fon!"); }
+        constructor(modelo, cor, imagem, velocidadeMaxima = 240) { super(modelo, cor, imagem); this.velocidade = 0; this.velocidadeMaxima = velocidadeMaxima; }
+        desligar() { if (this.velocidade > 0) { exibirAlerta("Desacelere o carro antes de desligar."); return; } super.desligar(); }
+        acelerar() { if (!this.ligado) { exibirAlerta("Ligue o carro primeiro!"); return; } if (this.velocidade >= this.velocidadeMaxima) { exibirAlerta(`Velocidade máxima atingida!`); return; } this.velocidade = Math.min(this.velocidadeMaxima, this.velocidade + 10); tocarSom('audio-acelerar'); }
+        frear() { if(this.velocidade === 0) { return; } this.velocidade = Math.max(0, this.velocidade - 20); tocarSom('audio-frear'); }
+        buzinar() { tocarSom('audio-buzina-carro'); }
     }
 
-    // Classe CarroEsportivo que herda de Carro
     class CarroEsportivo extends Carro {
-        constructor(modelo, cor) {
-            super(modelo, cor);
-            this.turboAtivado = false;
-        }
-
-        ativarTurbo() {
-            if (!this.ligado) { alert("Ligue o carro para ativar o turbo!"); return; }
-            if (this.turboAtivado) { alert("Turbo já ativado!"); return; }
-            this.turboAtivado = true;
-            this.velocidade += 50;
-            alert("TURBO ATIVADO!");
-        }
-        
-        desativarTurbo() {
-            if (!this.turboAtivado) return;
-            this.turboAtivado = false;
-            alert("Turbo desativado.");
-        }
-        
-        buzinar() { alert("VROOOM PA-PÁ!"); }
+        constructor(modelo, cor, imagem) { super(modelo, cor, imagem, 380); this.turboAtivado = false; }
+        ativarTurbo() { if (!this.ligado) { exibirAlerta("Ligue o carro para ativar o turbo!"); return; } this.turboAtivado = true; }
+        desativarTurbo() { this.turboAtivado = false; }
+        acelerar() { if (!this.ligado) { exibirAlerta("Ligue o carro primeiro!"); return; } if (this.velocidade >= this.velocidadeMaxima) { exibirAlerta(`Velocidade máxima atingida!`); return; } const incremento = this.turboAtivado ? 40 : 20; this.velocidade = Math.min(this.velocidadeMaxima, this.velocidade + incremento); tocarSom('audio-acelerar'); }
+        buzinar() { tocarSom('audio-buzina-esportivo'); }
+        exibirInformacoes() { return `${super.exibirInformacoes()} | Turbo: ${this.turboAtivado ? 'ATIVADO' : 'Desligado'}`; }
     }
 
-    // Classe Caminhao que herda de Carro
     class Caminhao extends Carro {
-        constructor(modelo, cor, capacidadeCarga) {
-            super(modelo, cor);
-            this.capacidadeCarga = capacidadeCarga;
-            this.cargaAtual = 0;
-        }
-        
-        acelerar() { // Acelera mais devagar
-            if (!this.ligado) { alert("Primeiro você precisa ligar o caminhão!"); return; }
-            this.velocidade += 5;
-        }
-
-        carregar(peso) {
-            const pesoNumerico = Number(peso);
-            if (isNaN(pesoNumerico) || pesoNumerico <= 0) { alert("Valor de carga inválido."); return; }
-            if ((this.cargaAtual + pesoNumerico) > this.capacidadeCarga) {
-                alert(`Carga excedida! Capacidade máxima: ${this.capacidadeCarga}kg.`);
-            } else {
-                this.cargaAtual += pesoNumerico;
-                alert(`${pesoNumerico}kg carregados.`);
-            }
-        }
-        
-        buzinar() { alert("FÕOOOOM! FÕOOOOM!"); }
+        constructor(modelo, cor, imagem, capacidadeCarga) { super(modelo, cor, imagem, 120); this.capacidadeCarga = capacidadeCarga; this.cargaAtual = 0; }
+        carregar(peso) { const p = Number(peso); if (isNaN(p) || p <= 0) { exibirAlerta("Valor de carga inválido."); return; } if ((this.cargaAtual + p) > this.capacidadeCarga) { exibirAlerta(`Carga excedida!`); } else { this.cargaAtual += p; alert(`${p}kg carregados.`); } }
+        buzinar() { tocarSom('audio-buzina-caminhao'); }
+        exibirInformacoes() { return `${super.exibirInformacoes()} | Carga: ${this.cargaAtual}kg / ${this.capacidadeCarga}kg`; }
     }
 
-    // --- CRIAÇÃO DOS TRÊS OBJETOS ---
-    const meuOpala = new Carro('Opala', 'Vermelho'); // Seu carro original
-    const meuCarroEsportivo = new CarroEsportivo('Ferrari 488', 'Vermelha');
-    const meuCaminhao = new Caminhao('Scania R450', 'Branco', 25000);
-
-    // --- Funções para atualizar os painéis de cada veículo ---
-
-    function atualizarDisplayOpala() {
-        document.getElementById('opala-modelo').textContent = meuOpala.modelo;
-        document.getElementById('opala-cor').textContent = meuOpala.cor;
-        document.getElementById('opala-estado').textContent = meuOpala.ligado ? "Ligado" : "Desligado";
-        document.getElementById('opala-velocidade').textContent = meuOpala.velocidade;
+    class Garagem {
+        constructor() { this.veiculos = []; this.veiculoSelecionado = null; }
+        adicionarVeiculo(veiculo) { this.veiculos.push(veiculo); }
+        selecionarVeiculo(indice) { if (indice >= 0 && indice < this.veiculos.length) { this.veiculoSelecionado = this.veiculos[indice]; atualizarDisplay(); } }
+        interagir(acao, valor = null) {
+            if (!this.veiculoSelecionado) { exibirAlerta("Selecione um veículo!"); return; }
+            const v = this.veiculoSelecionado;
+            if (acao === 'ativarTurbo') { acao = v.turboAtivado ? 'desativarTurbo' : 'ativarTurbo'; }
+            if (typeof v[acao] === 'function') { valor ? v[acao](valor) : v[acao](); } else { exibirAlerta(`Ação inválida!`); }
+            atualizarDisplay();
+        }
     }
 
-    function atualizarDisplayEsportivo() {
-        document.getElementById('esportivo-modelo').textContent = meuCarroEsportivo.modelo;
-        document.getElementById('esportivo-cor').textContent = meuCarroEsportivo.cor;
-        document.getElementById('esportivo-estado').textContent = meuCarroEsportivo.ligado ? "Ligado" : "Desligado";
-        document.getElementById('esportivo-velocidade').textContent = meuCarroEsportivo.velocidade;
-        document.getElementById('esportivo-turbo').textContent = meuCarroEsportivo.turboAtivado ? "ATIVADO" : "Desligado";
+    function salvarGaragem() {
+        const dados = minhaGaragem.veiculos.map(v => ({...v, _class: v.constructor.name }));
+        localStorage.setItem('garagemInteligente', JSON.stringify(dados));
     }
 
-    function atualizarDisplayCaminhao() {
-        document.getElementById('caminhao-modelo').textContent = meuCaminhao.modelo;
-        document.getElementById('caminhao-cor').textContent = meuCaminhao.cor;
-        document.getElementById('caminhao-estado').textContent = meuCaminhao.ligado ? "Ligado" : "Desligado";
-        document.getElementById('caminhao-velocidade').textContent = meuCaminhao.velocidade;
-        document.getElementById('caminhao-capacidade').textContent = meuCaminhao.capacidadeCarga;
-        document.getElementById('caminhao-carga-atual').textContent = meuCaminhao.cargaAtual;
+    function carregarGaragem() {
+        const dadosSalvos = localStorage.getItem('garagemInteligente');
+        if (!dadosSalvos) return null;
+        const veiculosCrus = JSON.parse(dadosSalvos);
+        return veiculosCrus.map(vc => {
+            let veiculo;
+            const classes = { Carro, CarroEsportivo, Caminhao };
+            if (!classes[vc._class]) return null;
+            veiculo = new classes[vc._class](vc.modelo, vc.cor, vc.imagem, vc.capacidadeCarga);
+            Object.assign(veiculo, vc);
+            veiculo.historicoManutencao = vc.historicoManutencao.map(m => new Manutencao(m.data, m.tipo, m.custo, m.descricao));
+            return veiculo;
+        }).filter(v => v);
+    }
+
+    const minhaGaragem = new Garagem();
+    const veiculosSalvos = carregarGaragem();
+    if (veiculosSalvos && veiculosSalvos.length > 0) {
+        minhaGaragem.veiculos = veiculosSalvos;
+    } else {
+        minhaGaragem.adicionarVeiculo(new Carro('Opala', 'Preto', 'imagens/opala.jpg'));
+        minhaGaragem.adicionarVeiculo(new CarroEsportivo('Ferrari 488', 'Vermelha', 'imagens/ferrari.jpg'));
+        minhaGaragem.adicionarVeiculo(new Caminhao('Scania R450', 'Branco', 'imagens/scania.jpg', 25000));
+        salvarGaragem();
     }
     
-    // --- EVENTOS PARA O OPALA ---
-    document.getElementById('opala-ligar').addEventListener('click', () => { meuOpala.ligar(); atualizarDisplayOpala(); });
-    document.getElementById('opala-desligar').addEventListener('click', () => { meuOpala.desligar(); atualizarDisplayOpala(); });
-    document.getElementById('opala-acelerar').addEventListener('click', () => { meuOpala.acelerar(); atualizarDisplayOpala(); });
-    document.getElementById('opala-frear').addEventListener('click', () => { meuOpala.frear(); atualizarDisplayOpala(); });
-    document.getElementById('opala-buzinar').addEventListener('click', () => meuOpala.buzinar());
+    const el = id => document.getElementById(id);
+    const [seletorContainer, displayContainer, formManutencao, historicoList, agendamentosFuturosList] =
+        ['seletor-veiculos', 'display-principal', 'form-manutencao', 'lista-historico-veiculo', 'lista-agendamentos-futuros'].map(el);
 
-    // --- EVENTOS PARA O CARRO ESPORTIVO ---
-    document.getElementById('esportivo-ligar').addEventListener('click', () => { meuCarroEsportivo.ligar(); atualizarDisplayEsportivo(); });
-    document.getElementById('esportivo-desligar').addEventListener('click', () => { meuCarroEsportivo.desligar(); atualizarDisplayEsportivo(); });
-    document.getElementById('esportivo-acelerar').addEventListener('click', () => { meuCarroEsportivo.acelerar(); atualizarDisplayEsportivo(); });
-    document.getElementById('esportivo-frear').addEventListener('click', () => { meuCarroEsportivo.frear(); atualizarDisplayEsportivo(); });
-    document.getElementById('esportivo-ativar-turbo').addEventListener('click', () => { meuCarroEsportivo.ativarTurbo(); atualizarDisplayEsportivo(); });
-    document.getElementById('esportivo-desativar-turbo').addEventListener('click', () => { meuCarroEsportivo.desativarTurbo(); atualizarDisplayEsportivo(); });
-    document.getElementById('esportivo-buzinar').addEventListener('click', () => meuCarroEsportivo.buzinar());
+    function atualizarDisplay() {
+        const v = minhaGaragem.veiculoSelecionado;
+        if (!v) return;
+        document.querySelectorAll('#seletor-veiculos button').forEach((btn, i) => btn.classList.toggle('active', minhaGaragem.veiculos[i] === v));
+        ['nome-veiculo', 'modelo', 'cor', 'estado', 'velocidade'].forEach(id => el(`display-${id}`).textContent = v[id] ?? '---');
+        el('display-imagem').src = v.imagem || 'imagens/placeholder.png';
+        el('display-estado').className = v.ligado ? 'status-ligado' : 'status-desligado';
+        
+        const percVel = v.velocidade && v.velocidadeMaxima ? (v.velocidade / v.velocidadeMaxima) * 100 : 0;
+        el('velocimetro-barra').style.width = `${percVel}%`;
+        
+        el('info-turbo').classList.toggle('hidden', !('turboAtivado' in v));
+        el('btn-turbo').classList.toggle('hidden', !('turboAtivado' in v));
+        if ('turboAtivado' in v) {
+            el('display-turbo').textContent = v.turboAtivado ? 'ATIVADO' : 'Desligado';
+            el('display-turbo').classList.toggle('ativado', v.turboAtivado);
+            el('btn-turbo').textContent = v.turboAtivado ? 'Desativar Turbo' : 'Ativar Turbo';
+        }
+        
+        el('info-carga').classList.toggle('hidden', !('capacidadeCarga' in v));
+        el('controle-carga').classList.toggle('hidden', !('capacidadeCarga' in v));
+        if ('capacidadeCarga' in v) {
+            el('display-carga-atual').textContent = v.cargaAtual; el('display-capacidade').textContent = v.capacidadeCarga;
+        }
 
-    // --- EVENTOS PARA O CAMINHÃO ---
-    document.getElementById('caminhao-ligar').addEventListener('click', () => { meuCaminhao.ligar(); atualizarDisplayCaminhao(); });
-    document.getElementById('caminhao-desligar').addEventListener('click', () => { meuCaminhao.desligar(); atualizarDisplayCaminhao(); });
-    document.getElementById('caminhao-acelerar').addEventListener('click', () => { meuCaminhao.acelerar(); atualizarDisplayCaminhao(); });
-    document.getElementById('caminhao-frear').addEventListener('click', () => { meuCaminhao.frear(); atualizarDisplayCaminhao(); });
-    document.getElementById('caminhao-carregar').addEventListener('click', () => {
-        const input = document.getElementById('caminhao-input-carga');
-        meuCaminhao.carregar(input.value);
-        atualizarDisplayCaminhao();
-        input.value = '';
+        el('informacoesVeiculo').innerHTML = `<p>${v.exibirInformacoes()}</p>`;
+        
+        historicoList.innerHTML = v.getHistoricoManutencao().map(m => `<li>${m.getFormatado()}</li>`).join('') || '<li>Nenhum registro.</li>';
+    }
+
+    function atualizarAgendamentosFuturos() {
+        const agora = new Date(); agora.setHours(0,0,0,0);
+        const agendamentos = minhaGaragem.veiculos.flatMap(v => v.historicoManutencao.filter(m => new Date(m.data + 'T00:00:00') >= agora).map(m => ({veiculo: v, manutencao: m})));
+        agendamentos.sort((a,b) => new Date(a.manutencao.data) - new Date(b.manutencao.data));
+        agendamentosFuturosList.innerHTML = agendamentos.map(item => `<li><span>${item.veiculo.modelo}:</span> ${item.manutencao.getFormatado()}</li>`).join('') || '<li>Nenhum agendamento futuro.</li>';
+    }
+
+    formManutencao.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const v = minhaGaragem.veiculoSelecionado;
+        if (!v) { exibirAlerta("Selecione um veículo."); return; }
+        const data = new FormData(formManutencao);
+        const novaManutencao = new Manutencao(el('manut-data').value, el('manut-tipo').value, el('manut-custo').value, el('manut-descricao').value);
+        if (v.addManutencao(novaManutencao)) {
+            salvarGaragem();
+            atualizarDisplay();
+            atualizarAgendamentosFuturos();
+            formManutencao.reset();
+            exibirAlerta("Manutenção salva com sucesso!");
+        }
     });
-    document.getElementById('caminhao-buzinar').addEventListener('click', () => meuCaminhao.buzinar());
 
-    // --- INICIALIZAÇÃO DA TELA ---
-    atualizarDisplayOpala();
-    atualizarDisplayEsportivo();
-    atualizarDisplayCaminhao();
+    minhaGaragem.veiculos.forEach((v, i) => {
+        const btn = document.createElement('button'); btn.textContent = v.modelo;
+        btn.onclick = () => minhaGaragem.selecionarVeiculo(i);
+        seletorContainer.appendChild(btn);
+    });
+
+    displayContainer.addEventListener('click', e => {
+        const target = e.target.closest('button[data-action]');
+        if (target) {
+            const acao = target.dataset.action;
+            const valor = acao === 'carregar' ? el('input-carga').value : null;
+            minhaGaragem.interagir(acao, valor);
+            if (acao === 'carregar') el('input-carga').value = '';
+        }
+    });
+
+    minhaGaragem.selecionarVeiculo(0);
+    atualizarAgendamentosFuturos();
 });
