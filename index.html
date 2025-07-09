@@ -1,114 +1,72 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Garagem Inteligente - Manutenção</title>
-    <!-- O link para o seu arquivo CSS -->
+    <title>B1.A4 - Garagem Inteligente com Feedback</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div id="garagem-inteligente">
-        <h1>Garagem Inteligente</h1>
-        
-        <div id="seletor-veiculos">
-            <h3>Selecione um Veículo:</h3>
-            <!-- Botões para selecionar os veículos serão inseridos aqui pelo JS -->
+    <h1>Garagem Inteligente 2.0</h1>
+    <p class="subtitle">Com Feedback Visual e Sonoro</p>
+
+    <div class="container">
+        <!-- SELEÇÃO DE VEÍCULOS -->
+        <div class="painel" id="painel-selecao">
+            <h2>Selecione um Veículo</h2>
+            <div class="botoes">
+                <button id="btnCarro">Carro Comum (Fusca)</button>
+                <button id="btnEsportivo">Carro Esportivo (Ferrari)</button>
+                <button id="btnCaminhao">Caminhão (Scania)</button>
+            </div>
         </div>
 
-        <!-- O card ÚNICO que exibirá o veículo selecionado e seus controles -->
-        <div class="veiculo-card" id="display-principal">
+        <!-- PAINEL DE INTERAÇÃO DA GARAGEM -->
+        <div class="painel hidden" id="painel-interacao">
+            <h2 id="veiculoSelecionado"></h2>
 
-            <h2 id="display-nome-veiculo">Nenhum veículo selecionado</h2>
-            <img id="display-imagem" src="imagens/placeholder.png" alt="Imagem do veículo selecionado">
-
-            <div class="status-painel">
-                <p><strong>Modelo:</strong> <span id="display-modelo">---</span></p>
-                <p><strong>Cor:</strong> <span id="display-cor">---</span></p>
-                <p><strong>Estado:</strong> <span id="display-estado">---</span></p>
-                <p id="info-turbo" class="hidden"><strong>Turbo:</strong> <span id="display-turbo" class="status-turbo">Desligado</span></p>
-                <p id="info-carga" class="hidden"><strong>Carga:</strong> <span id="display-carga-atual">0</span> / <span id="display-capacidade"></span> kg</p>
-                <div class="velocidade-wrapper">
-                    <p><strong>Velocidade:</strong> <span id="display-velocidade">0</span> km/h</p>
-                    <div id="velocimetro-container"><div id="velocimetro-barra"></div></div>
+            <!-- ÁREA DE FEEDBACK VISUAL -->
+            <div class="feedback-visual">
+                <img id="imagemVeiculo" src="" alt="Imagem do veículo selecionado">
+                <div class="velocimetro-container">
+                    <div id="velocimetro-barra"></div>
                 </div>
             </div>
-            
-            <div id="informacoesVeiculo" class="info-polimorfismo">
-                <p>Clique em um veículo para ver suas informações detalhadas.</p>
+
+            <!-- Área de exibição de informações (Polimorfismo) -->
+            <div id="informacoesVeiculo" class="info-display">
+                <p>Selecione um veículo acima para interagir.</p>
             </div>
 
-            <div class="botoes-controle">
-                <button data-action="ligar">Ligar</button>
-                <button data-action="desligar">Desligar</button>
-                <button data-action="acelerar">Acelerar</button>
-                <button data-action="frear">Frear</button>
-                <button data-action="buzinar">Buzinar</button>
-                <button id="btn-turbo" data-action="ativarTurbo" class="hidden">Turbo</button>
-            </div>
-
-            <div id="controle-carga" class="carga-controle hidden">
-                <input type="number" id="input-carga" placeholder="Peso em kg">
-                <button data-action="carregar">Carregar</button>
-            </div>
-
-            <!-- ===== SEÇÃO DE MANUTENÇÃO ===== -->
-            <div class="manutencao-container">
-                <hr>
+            <!-- Botões de Ação -->
+            <h3>Controles do Veículo</h3>
+            <div class="botoes" id="controles-acoes">
+                <button data-acao="ligar">Ligar</button>
+                <button data-acao="desligar">Desligar</button>
+                <button data-acao="acelerar">Acelerar</button>
+                <button data-acao="frear">Frear</button>
+                <button data-acao="buzinar">Buzinar</button>
                 
-                <h3>Agendar / Registrar Manutenção</h3>
-                <form id="form-manutencao">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="manut-data">Data:</label>
-                            <input type="date" id="manut-data" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="manut-tipo">Tipo de Serviço:</label>
-                            <input type="text" id="manut-tipo" placeholder="Ex: Troca de óleo" required>
-                        </div>
-                         <div class="form-group">
-                            <label for="manut-custo">Custo (R$):</label>
-                            <input type="number" id="manut-custo" placeholder="150.00" step="0.01" min="0" required>
-                        </div>
-                        <div class="form-group form-group-full">
-                             <label for="manut-descricao">Descrição (Opcional):</label>
-                            <textarea id="manut-descricao" rows="2" placeholder="Detalhes do serviço..."></textarea>
-                        </div>
-                    </div>
-                    <button type="submit">Salvar Manutenção</button>
-                </form>
-
-                <h3>Histórico do Veículo</h3>
-                <ul id="lista-historico-veiculo" class="lista-manutencao">
-                    <!-- Conteúdo inserido via JS -->
-                </ul>
+                <!-- Botões Específicos -->
+                <button data-acao="ativarTurbo" id="btnTurbo" class="botao-especial">Ativar Turbo</button>
+            </div>
+            
+            <!-- Controles Específicos do Caminhão -->
+            <div class="botoes-carregar hidden" id="controlesCaminhao">
+                <input type="number" id="inputCarga" placeholder="Peso em kg">
+                <button data-acao="carregar" class="botao-especial">Carregar</button>
             </div>
         </div>
-        
-        <!-- CARD DE AGENDAMENTOS FUTUROS -->
-        <div class="agendamentos-futuros-card">
-            <h2>Próximos Agendamentos</h2>
-            <ul id="lista-agendamentos-futuros" class="lista-manutencao">
-                 <!-- Conteúdo inserido via JS -->
-            </ul>
-        </div>
-        
     </div>
 
-    <!-- Elementos de Áudio -->
-    <audio id="audio-ligar" src="audios/ligar.mp3"></audio>
-    <audio id="audio-desligar" src="audios/desligar.mp3"></audio>
-    <audio id="audio-acelerar" src="audios/acelerar.mp3"></audio>
-    <audio id="audio-frear" src="audios/frear.mp3"></audio>
-    <audio id="audio-buzina-carro" src="audios/buzina_carro.mp3"></audio>
-    <audio id="audio-buzina-esportivo" src="audios/buzina_esportivo.mp3"></audio>
-    <audio id="audio-buzina-caminhao" src="audios/buzina_caminhao.mp3"></audio>
-    <audio id="audio-erro" src="audios/erro.mp3"></audio>
+    <!-- ELEMENTOS DE ÁUDIO -->
+    <audio id="audioLigar" src="audio/ligar.mp3" preload="auto"></audio>
+    <audio id="audioDesligar" src="audio/desligar.mp3" preload="auto"></audio>
+    <audio id="audioAcelerar" src="audio/acelerar.mp3" preload="auto"></audio>
+    <audio id="audioFrear" src="audio/frear.mp3" preload="auto"></audio>
+    <audio id="audioBuzina" src="audio/buzina.mp3" preload="auto"></audio>
 
-    <!-- O link para o seu arquivo JS, logo antes de fechar o <body> -->
     <script src="script.js"></script>
-
 </body>
 </html>
