@@ -1,158 +1,137 @@
+/* Estilos gerais */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f0f2f5;
-    color: #333;
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     align-items: center;
-    padding: 20px;
+    min-height: 100vh;
     margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+#main-container {
+    background-color: #ffffff;
+    padding: 25px 40px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 100%;
+    max-width: 500px;
 }
 
 h1 {
-    color: #0d47a1;
-    border-bottom: 3px solid #1976d2;
-    padding-bottom: 10px;
+    color: #333;
+    margin-bottom: 20px;
 }
 
-.subtitle {
-    color: #555;
-    margin-top: -10px;
-}
-
-.container {
+/* Seletor de Veículo */
+#vehicle-selector {
+    margin-bottom: 20px;
     display: flex;
-    flex-direction: column;
-    gap: 30px;
-    width: 90%;
-    max-width: 800px;
+    justify-content: center;
+    gap: 10px;
 }
 
-.painel {
-    background-color: #ffffff;
-    border: 1px solid #ccc;
-    border-radius: 12px;
-    padding: 25px;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease-in-out;
-}
-
-.painel.hidden {
-    display: none;
-}
-
-.painel h2 {
-    color: #1976d2;
-    margin-top: 0;
-    text-align: center;
-}
-
-/* NOVO: Feedback Visual */
-.feedback-visual {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-#imagemVeiculo {
-    max-height: 150px;
-    width: auto;
-    margin-bottom: 20px;
-    transition: transform 0.2s ease-in-out;
-}
-
-.velocimetro-container {
-    width: 100%;
-    height: 25px;
-    background-color: #e0e0e0;
-    border-radius: 15px;
-    border: 1px solid #bdbdbd;
-    overflow: hidden;
-}
-
-#velocimetro-barra {
-    width: 0%; /* Começa em 0 */
-    height: 100%;
-    background: linear-gradient(90deg, #4caf50, #ffeb3b, #f44336);
-    border-radius: 15px;
-    transition: width 0.5s ease-out; /* Animação suave */
-}
-/* FIM NOVO */
-
-
-.info-display {
-    background-color: #e3f2fd;
-    border-left: 5px solid #1976d2;
-    padding: 15px;
-    margin: 20px 0;
-    font-family: 'Courier New', Courier, monospace;
-    white-space: pre-wrap;
-    line-height: 1.6;
+#vehicle-selector button {
+    background-color: #6c757d;
+    border: none;
+    padding: 10px 15px;
     border-radius: 5px;
-    position: relative;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s, transform 0.2s;
 }
 
-/* NOVO: Indicador de Status */
-.status-indicator {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    margin-left: 8px;
-    vertical-align: middle;
-    transition: background-color 0.3s;
+#vehicle-selector button:hover {
+    background-color: #5a6268;
+    transform: translateY(-2px);
 }
 
-.status-ligado {
-    background-color: #4CAF50; /* Verde */
-    box-shadow: 0 0 8px #4caf50;
+#vehicle-selector button.active {
+    background-color: #007BFF;
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
 }
 
-.status-desligado {
-    background-color: #f44336; /* Vermelho */
-    box-shadow: 0 0 8px #f44336;
+/* Display do Veículo */
+#vehicle-image {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    transition: transform 0.4s ease, filter 0.4s ease;
 }
-/* FIM NOVO */
 
+#vehicle-image.vehicle-on {
+    filter: drop-shadow(0 0 12px rgba(255, 235, 59, 0.8));
+}
 
-.botoes, .botoes-carregar {
-    margin-top: 15px;
+#vehicle-image.move-vehicle {
+    transform: translateX(15px) scale(1.02);
+}
+
+/* Painéis de Informação e Controle */
+#vehicle-info p, #specific-info p {
+    font-size: 1.1em;
+    color: #555;
+    margin: 8px 0;
+    text-align: left;
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-left: 4px solid #007BFF;
+    border-radius: 5px;
+}
+
+#vehicle-info span, #specific-info span {
+    font-weight: bold;
+    color: #333;
+    float: right;
+}
+
+/* Botões de Controle */
+#controls, #specific-controls {
+    margin-top: 20px;
     display: flex;
-    gap: 12px;
     flex-wrap: wrap;
     justify-content: center;
+    gap: 10px;
 }
 
-button {
-    padding: 12px 18px;
-    font-size: 1em;
-    font-weight: bold;
+#controls button, #specific-controls button {
+    background-color: #28a745;
     color: white;
-    background-color: #1976d2;
     border: none;
+    padding: 12px 20px;
     border-radius: 5px;
     cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
     transition: background-color 0.3s, transform 0.1s;
 }
 
-button:hover {
-    background-color: #1565c0;
+#controls button:hover, #specific-controls button:hover {
+    opacity: 0.9;
 }
 
-button:active {
+#controls button:active, #specific-controls button:active {
     transform: scale(0.98);
 }
 
-.botao-especial {
-    background-color: #2e7d32;
-}
+/* Estilos específicos para botões */
+#btn-desligar, #btn-turbo-off { background-color: #dc3545; }
+#btn-frear { background-color: #ffc107; color: #333; }
+#btn-buzinar, #btn-carregar { background-color: #17a2b8; }
 
-.botao-especial:hover {
-    background-color: #1b5e20;
+/* Controles e Infos Específicos */
+.specific-panel {
+    display: none; /* Começam escondidos por padrão */
 }
-
-input[type="number"] {
-    padding: 12px;
+#truck-controls input {
+    padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
-    font-size: 1em;
+    width: 120px;
 }

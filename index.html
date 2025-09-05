@@ -3,70 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>B1.A4 - Garagem Inteligente com Feedback</title>
+    <title>Herança em POO: Veículos</title>
+    <!-- Link para a folha de estilos -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <h1>Garagem Inteligente 2.0</h1>
-    <p class="subtitle">Com Feedback Visual e Sonoro</p>
-
-    <div class="container">
-        <!-- SELEÇÃO DE VEÍCULOS -->
-        <div class="painel" id="painel-selecao">
-            <h2>Selecione um Veículo</h2>
-            <div class="botoes">
-                <button id="btnCarro">Carro Comum (Fusca)</button>
-                <button id="btnEsportivo">Carro Esportivo (Ferrari)</button>
-                <button id="btnCaminhao">Caminhão (Scania)</button>
-            </div>
+    <div id="main-container">
+        <h1>Garagem Virtual</h1>
+        
+        <!-- Botões para selecionar qual veículo controlar -->
+        <div id="vehicle-selector">
+            <button id="btn-select-car" class="active">Carro Normal</button>
+            <button id="btn-select-sport">Carro Esportivo</button>
+            <button id="btn-select-truck">Caminhão</button>
         </div>
 
-        <!-- PAINEL DE INTERAÇÃO DA GARAGEM -->
-        <div class="painel hidden" id="painel-interacao">
-            <h2 id="veiculoSelecionado"></h2>
+        <div id="vehicle-display">
+            <!-- A imagem do veículo será controlada pelo JavaScript -->
+            <img id="vehicle-image" src="imagens/carro-normal.png" alt="Imagem do veículo">
 
-            <!-- ÁREA DE FEEDBACK VISUAL -->
-            <div class="feedback-visual">
-                <img id="imagemVeiculo" src="" alt="Imagem do veículo selecionado">
-                <div class="velocimetro-container">
-                    <div id="velocimetro-barra"></div>
+            <!-- Painel de informações gerais, comum a todos -->
+            <div id="vehicle-info">
+                <p><strong>Veículo:</strong> <span id="vehicle-model"></span></p>
+                <p><strong>Cor:</strong> <span id="vehicle-color"></span></p>
+                <p><strong>Status:</strong> <span id="vehicle-status">Desligado</span></p>
+                <p><strong>Velocidade:</strong> <span id="vehicle-speed">0</span> km/h</p>
+            </div>
+            
+             <!-- Painel para informações específicas de cada tipo de veículo -->
+            <div id="specific-info">
+                <!-- Info do Carro Esportivo -->
+                <div id="sport-info" class="specific-panel">
+                    <p><strong>Turbo:</strong> <span id="turbo-status">Desativado</span></p>
+                </div>
+                <!-- Info do Caminhão -->
+                <div id="truck-info" class="specific-panel">
+                    <p><strong>Capacidade:</strong> <span id="truck-capacity">0</span> kg</p>
+                    <p><strong>Carga Atual:</strong> <span id="truck-load">0</span> kg</p>
                 </div>
             </div>
 
-            <!-- Área de exibição de informações (Polimorfismo) -->
-            <div id="informacoesVeiculo" class="info-display">
-                <p>Selecione um veículo acima para interagir.</p>
+            <!-- Controles gerais, comuns a todos -->
+            <div id="controls">
+                <button id="btn-ligar">Ligar</button>
+                <button id="btn-desligar">Desligar</button>
+                <button id="btn-acelerar">Acelerar</button>
+                <button id="btn-frear">Frear</button>
+                <button id="btn-buzinar">Buzinar</button>
             </div>
 
-            <!-- Botões de Ação -->
-            <h3>Controles do Veículo</h3>
-            <div class="botoes" id="controles-acoes">
-                <button data-acao="ligar">Ligar</button>
-                <button data-acao="desligar">Desligar</button>
-                <button data-acao="acelerar">Acelerar</button>
-                <button data-acao="frear">Frear</button>
-                <button data-acao="buzinar">Buzinar</button>
-                
-                <!-- Botões Específicos -->
-                <button data-acao="ativarTurbo" id="btnTurbo" class="botao-especial">Ativar Turbo</button>
-            </div>
-            
-            <!-- Controles Específicos do Caminhão -->
-            <div class="botoes-carregar hidden" id="controlesCaminhao">
-                <input type="number" id="inputCarga" placeholder="Peso em kg">
-                <button data-acao="carregar" class="botao-especial">Carregar</button>
+             <!-- Controles específicos para cada tipo de veículo -->
+            <div id="specific-controls">
+                <!-- Controles do Carro Esportivo -->
+                <div id="sport-controls" class="specific-panel">
+                    <button id="btn-turbo-on">Ativar Turbo</button>
+                    <button id="btn-turbo-off">Desativar Turbo</button>
+                </div>
+                <!-- Controles do Caminhão -->
+                <div id="truck-controls" class="specific-panel">
+                    <input type="number" id="input-carga" placeholder="Peso em kg">
+                    <button id="btn-carregar">Carregar</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- ELEMENTOS DE ÁUDIO -->
-    <audio id="audioLigar" src="audio/ligar.mp3" preload="auto"></audio>
-    <audio id="audioDesligar" src="audio/desligar.mp3" preload="auto"></audio>
-    <audio id="audioAcelerar" src="audio/acelerar.mp3" preload="auto"></audio>
-    <audio id="audioFrear" src="audio/frear.mp3" preload="auto"></audio>
-    <audio id="audioBuzina" src="audio/buzina.mp3" preload="auto"></audio>
-
+    <!-- Link para o arquivo JavaScript -->
     <script src="script.js"></script>
 </body>
 </html>

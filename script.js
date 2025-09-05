@@ -1,307 +1,191 @@
-/* ==================================================================
-   PARTE 1: DEFINIÇÃO DAS CLASSES (OS MOLDES DOS VEÍCULOS)
-================================================================== */
-
-// CLASSE PAI (SUPERCLASSE)
+// --- CLASSE BASE (PAI DE TODOS) ---
+// Agora o construtor também recebe o caminho para o som da buzina
 class Veiculo {
-    constructor(modelo, cor, imagem, velocidadeMaxima) {
+    constructor(modelo, cor, imagem, arquivoSomBuzina) {
         this.modelo = modelo;
         this.cor = cor;
-        this.imagem = imagem; // Caminho para a imagem
-        this.velocidadeMaxima = velocidadeMaxima;
+        this.imagem = imagem;
         this.ligado = false;
-        this.velocidade = 0;
+        
+        // Cria um objeto de áudio para a buzina deste veículo
+        this.somBuzina = new Audio(arquivoSomBuzina);
     }
 
-    // Retorna true se a operação foi bem-sucedida, false caso contrário
     ligar() {
-        if (this.ligado) {
-            exibirAlerta(`${this.modelo} já está ligado.`);
-            return false;
-        }
-        this.ligado = true;
-        return true;
+        if (!this.ligado) this.ligado = true;
     }
 
     desligar() {
-        if (!this.ligado) {
-            exibirAlerta(`${this.modelo} já está desligado.`);
-            return false;
-        }
-        if (this.velocidade > 0) {
-            exibirAlerta(`Freie o ${this.modelo} antes de desligar!`);
-            return false;
-        }
-        this.ligado = false;
-        this.velocidade = 0;
-        return true;
-    }
-
-    acelerar() {
-        if (!this.ligado) {
-            exibirAlerta(`Ligue o ${this.modelo} para acelerar.`);
-            return false;
-        }
-        if (this.velocidade >= this.velocidadeMaxima) {
-            exibirAlerta(`${this.modelo} já atingiu a velocidade máxima!`);
-            return false;
-        }
-        this.velocidade = Math.min(this.velocidade + 10, this.velocidadeMaxima);
-        return true;
-    }
-
-    frear() {
-        if (this.velocidade === 0) {
-            exibirAlerta(`${this.modelo} já está parado.`);
-            return false;
-        }
-        this.velocidade = Math.max(this.velocidade - 10, 0);
-        return true;
+        if (this.ligado) this.ligado = false;
     }
 
     buzinar() {
-        tocarSom('audioBuzina');
-    }
-
-    // MÉTODO POLIMÓRFICO
-    exibirInformacoes() {
-        const statusTexto = this.ligado ? 'Ligado' : 'Desligado';
-        const statusClasse = this.ligado ? 'status-ligado' : 'status-desligado';
-        return `Modelo: ${this.modelo}\nCor: ${this.cor}\nStatus: ${statusTexto} <span class="status-indicator ${statusClasse}"></span>\nVelocidade: ${this.velocidade} km/h`;
+        // Toca o som da buzina
+        this.somBuzina.currentTime = 0; // Dica: Reinicia o som se ele já estiver tocando
+        this.somBuzina.play();
     }
 }
 
-// CLASSE FILHA: Carro
+// --- CLASSE FILHA: CARRO (HERDA DE VEICULO) ---
 class Carro extends Veiculo {
-    constructor(modelo, cor) {
-        // Define imagem e velocidade máxima específicas para o Carro comum
-        super(modelo, cor, 'images/carro_comum.png', 120);
+    constructor(modelo, cor, imagem, arquivoSomBuzina) {
+        // Passa todos os parâmetros para o construtor da classe pai (Veiculo)
+        super(modelo, cor, imagem, arquivoSomBuzina);
+        this.velocidade = 0;
+    }
+
+    acelerar() {
+        if (this.ligado && this.velocidade < 180) this.velocidade += 10;
+    }
+
+    frear() {
+        if (this.velocidade > 0) this.velocidade -= 10;
+    }
+    
+    // O método buzinar agora é herdado diretamente da classe Veiculo,
+    // então não precisamos mais reescrevê-lo aqui, a menos que quiséssemos
+    // um comportamento especial além de tocar o som.
+
+    desligar() {
+        super.desligar();
+        this.velocidade = 0;
     }
 }
 
-// CLASSE FILHA: CarroEsportivo
-class CarroEsportivo extends Veiculo {
-    constructor(modelo, cor) {
-        // Define imagem e velocidade máxima específicas para o Carro Esportivo
-        super(modelo, cor, 'images/carro_esportivo.png', 250);
+// --- CLASSE FILHA: CARRO ESPORTIVO (HERDA DE CARRO) ---
+class CarroEsportivo extends Carro {
+    constructor(modelo, cor, imagem, arquivoSomBuzina) {
+        super(modelo, cor, imagem, arquivoSomBuzina);
         this.turboAtivado = false;
     }
 
     ativarTurbo() {
-        if (!this.ligado) {
-            exibirAlerta("Ligue o carro para ativar o turbo!");
-            return false;
+        if (this.ligado) {
+            this.turboAtivado = true;
+            this.velocidade += 50;
         }
-        if (this.turboAtivado) {
-            exibirAlerta("O turbo já está ativado!");
-            return false;
-        }
-        this.turboAtivado = true;
-        // O turbo adiciona um bônus à velocidade máxima temporariamente
-        this.velocidade = Math.min(this.velocidade + 50, this.velocidadeMaxima + 50);
-        return true;
     }
-    
-    // Sobrescreve desligar para garantir que o turbo seja desativado
-    desligar() {
-        const sucesso = super.desligar(); // Chama o método do pai primeiro
-        if (sucesso) {
-            this.turboAtivado = false;
-        }
-        return sucesso;
-    }
-    
-    // SOBRESCRITA DO MÉTODO (Polimorfismo)
-    exibirInformacoes() {
-        const infoBasica = super.exibirInformacoes();
-        const turboTexto = `\nTurbo: ${this.turboAtivado ? "ATIVADO" : "Desativado"}`;
-        return infoBasica + turboTexto;
+
+    desativarTurbo() {
+        this.turboAtivado = false;
     }
 }
 
-// CLASSE FILHA: Caminhao
-class Caminhao extends Veiculo {
-    constructor(modelo, cor, capacidadeCarga) {
-        super(modelo, cor, 'images/caminhao.png', 90);
+// --- CLASSE FILHA: CAMINHÃO (HERDA DE CARRO) ---
+class Caminhao extends Carro {
+    constructor(modelo, cor, imagem, capacidadeCarga, arquivoSomBuzina) {
+        super(modelo, cor, imagem, arquivoSomBuzina);
         this.capacidadeCarga = capacidadeCarga;
         this.cargaAtual = 0;
     }
 
     carregar(peso) {
-        if (this.ligado) {
-            exibirAlerta("Não é seguro carregar um caminhão ligado!");
-            return false;
-        }
-        if (this.cargaAtual + peso > this.capacidadeCarga) {
-            exibirAlerta(`Carga excede a capacidade máxima de ${this.capacidadeCarga}kg!`);
-            return false;
-        }
-        this.cargaAtual += peso;
-        exibirAlerta(`Carregado ${peso}kg. Carga atual: ${this.cargaAtual}kg.`);
-        return true;
-    }
-
-    // SOBRESCRITA DO MÉTODO (Polimorfismo)
-    exibirInformacoes() {
-        const infoBasica = super.exibirInformacoes();
-        const cargaTexto = `\nCarga: ${this.cargaAtual}kg / ${this.capacidadeCarga}kg`;
-        return infoBasica + cargaTexto;
-    }
-}
-
-/* ==================================================================
-   PARTE 2: A CLASSE GARAGEM (O GERENCIADOR)
-================================================================== */
-
-class Garagem {
-    constructor() {
-        this.veiculos = [];
-        this.veiculoSelecionado = null;
-    }
-
-    adicionarVeiculo(veiculo) {
-        this.veiculos.push(veiculo);
-    }
-
-    selecionarVeiculo(indice) {
-        if (indice >= 0 && indice < this.veiculos.length) {
-            this.veiculoSelecionado = this.veiculos[indice];
+        if (this.velocidade === 0) {
+            if (this.cargaAtual + peso <= this.capacidadeCarga) {
+                this.cargaAtual += peso;
+                alert(`Carga de ${peso}kg adicionada!`);
+            } else {
+                alert(`Excesso de peso! A capacidade máxima é ${this.capacidadeCarga}kg.`);
+            }
+        } else {
+            alert("Pare o caminhão para poder carregar!");
         }
     }
 
-    interagir(acao, valor = 0) {
-        const veiculo = this.veiculoSelecionado;
-        if (!veiculo) {
-            exibirAlerta("Por favor, selecione um veículo primeiro.");
-            return;
-        }
-
-        let sucesso = false;
-        switch (acao) {
-            case 'ligar':
-                if (veiculo.ligar()) tocarSom('audioLigar');
-                break;
-            case 'desligar':
-                if (veiculo.desligar()) tocarSom('audioDesligar');
-                break;
-            case 'acelerar':
-                if (veiculo.acelerar()) tocarSom('audioAcelerar');
-                break;
-            case 'frear':
-                if (veiculo.frear()) tocarSom('audioFrear');
-                break;
-            case 'buzinar':
-                veiculo.buzinar(); // Buzina não tem estado de sucesso/falha
-                break;
-            case 'ativarTurbo':
-                if (veiculo instanceof CarroEsportivo) {
-                    if (veiculo.ativarTurbo()) tocarSom('audioAcelerar'); // Reusa som de aceleração
-                } else {
-                    exibirAlerta("Este veículo não possui turbo!");
-                }
-                break;
-            case 'carregar':
-                if (veiculo instanceof Caminhao) {
-                    veiculo.carregar(valor); // O próprio método já exibe alerta
-                } else {
-                    exibirAlerta("Este veículo não pode ser carregado!");
-                }
-                break;
-        }
-        atualizarUI();
+    acelerar() {
+        if (this.ligado && this.velocidade < 100) this.velocidade += 5;
     }
 }
 
-/* ==================================================================
-   PARTE 3: FUNÇÕES AUXILIARES E MANIPULAÇÃO DO DOM
-================================================================== */
+// --- LÓGICA DA PÁGINA (INTERAÇÃO COM O HTML) ---
 
-// --- FUNÇÕES AUXILIARES ---
-function exibirAlerta(mensagem) {
-    // No futuro, isso pode ser trocado por um modal mais elegante
-    alert(mensagem);
+// 1. Criar os objetos, passando o caminho do som da buzina para cada um
+const meuCarro = new Carro("Corolla", "Branco", "imagens/carro-normal.png", "sons/buzina-carro.mp3");
+const meuCarroEsportivo = new CarroEsportivo("LaFerrari", "Vermelho", "imagens/ferrari.jpg", "sons/buzina-esportiva.mp3");
+const meuCaminhao = new Caminhao("Volvo", "Prateado", "imagens/caminhao.jpg", 47000, "sons/buzina-caminhao.mp3");
+let veiculoAtual = meuCarro;
+
+// O restante do código de interação com o HTML (a partir da linha "Pegar os elementos do HTML")
+// permanece exatamente o mesmo de antes.
+// ... (cole o restante do seu código JS aqui, sem alterações)
+const vehicleImage = document.getElementById("vehicle-image");
+const vehicleModel = document.getElementById("vehicle-model");
+const vehicleColor = document.getElementById("vehicle-color");
+const vehicleStatus = document.getElementById("vehicle-status");
+const vehicleSpeed = document.getElementById("vehicle-speed");
+const sportInfoPanel = document.getElementById("sport-info");
+const turboStatus = document.getElementById("turbo-status");
+const truckInfoPanel = document.getElementById("truck-info");
+const truckCapacity = document.getElementById("truck-capacity");
+const truckLoad = document.getElementById("truck-load");
+const sportControlsPanel = document.getElementById("sport-controls");
+const truckControlsPanel = document.getElementById("truck-controls");
+const inputCarga = document.getElementById("input-carga");
+
+function atualizarDisplay() {
+    vehicleModel.textContent = veiculoAtual.modelo;
+    vehicleColor.textContent = veiculoAtual.cor;
+    vehicleImage.src = veiculoAtual.imagem;
+    vehicleStatus.textContent = veiculoAtual.ligado ? "Ligado" : "Desligado";
+    vehicleSpeed.textContent = veiculoAtual.velocidade;
+    vehicleImage.classList.toggle('vehicle-on', veiculoAtual.ligado);
+
+    sportInfoPanel.style.display = 'none';
+    truckInfoPanel.style.display = 'none';
+    sportControlsPanel.style.display = 'none';
+    truckControlsPanel.style.display = 'none';
+
+    if (veiculoAtual instanceof CarroEsportivo) {
+        sportInfoPanel.style.display = 'block';
+        sportControlsPanel.style.display = 'flex';
+        turboStatus.textContent = veiculoAtual.turboAtivado ? "Ativado" : "Desativado";
+    } else if (veiculoAtual instanceof Caminhao) {
+        truckInfoPanel.style.display = 'block';
+        truckControlsPanel.style.display = 'flex';
+        truckCapacity.textContent = veiculoAtual.capacidadeCarga;
+        truckLoad.textContent = veiculoAtual.cargaAtual;
+    }
+    
+    document.querySelectorAll('#vehicle-selector button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    if (veiculoAtual === meuCarro) document.getElementById('btn-select-car').classList.add('active');
+    if (veiculoAtual === meuCarroEsportivo) document.getElementById('btn-select-sport').classList.add('active');
+    if (veiculoAtual === meuCaminhao) document.getElementById('btn-select-truck').classList.add('active');
 }
 
-function tocarSom(id) {
-    const audio = document.getElementById(id);
-    if (audio) {
-        audio.currentTime = 0; // Reinicia o som para que possa ser tocado de novo rapidamente
-        audio.play();
+document.body.addEventListener('click', (event) => {
+    const targetId = event.target.id;
+    if (event.target.tagName !== 'BUTTON') return;
+
+    if (targetId === 'btn-select-car') veiculoAtual = meuCarro;
+    if (targetId === 'btn-select-sport') veiculoAtual = meuCarroEsportivo;
+    if (targetId === 'btn-select-truck') veiculoAtual = meuCaminhao;
+
+    switch(targetId) {
+        case 'btn-ligar': veiculoAtual.ligar(); break;
+        case 'btn-desligar': veiculoAtual.desligar(); break;
+        case 'btn-acelerar': 
+            veiculoAtual.acelerar(); 
+            vehicleImage.classList.add("move-vehicle");
+            setTimeout(() => vehicleImage.classList.remove("move-vehicle"), 400);
+            break;
+        case 'btn-frear': veiculoAtual.frear(); break;
+        case 'btn-buzinar': veiculoAtual.buzinar(); break;
+        case 'btn-turbo-on': if(veiculoAtual.ativarTurbo) veiculoAtual.ativarTurbo(); break;
+        case 'btn-turbo-off': if(veiculoAtual.desativarTurbo) veiculoAtual.desativarTurbo(); break;
+        case 'btn-carregar':
+            const carga = parseInt(inputCarga.value, 10);
+            if (!isNaN(carga) && carga > 0) {
+                if(veiculoAtual.carregar) veiculoAtual.carregar(carga);
+                inputCarga.value = '';
+            } else {
+                alert("Por favor, insira um peso válido.");
+            }
+            break;
     }
-}
-
-// --- ELEMENTOS DO DOM ---
-const painelInteracao = document.getElementById('painel-interacao');
-const elVeiculoSelecionado = document.getElementById('veiculoSelecionado');
-const elInformacoesVeiculo = document.getElementById('informacoesVeiculo');
-const elImagemVeiculo = document.getElementById('imagemVeiculo');
-const elVelocimetroBarra = document.getElementById('velocimetro-barra');
-const elControlesAcoes = document.getElementById('controles-acoes');
-const elBtnTurbo = document.getElementById('btnTurbo');
-const elControlesCaminhao = document.getElementById('controlesCaminhao');
-const elInputCarga = document.getElementById('inputCarga');
-
-// --- INICIALIZAÇÃO ---
-const minhaGaragem = new Garagem();
-minhaGaragem.adicionarVeiculo(new Carro("Fusca", "Azul"));
-minhaGaragem.adicionarVeiculo(new CarroEsportivo("Ferrari 488", "Vermelho"));
-minhaGaragem.adicionarVeiculo(new Caminhao("Scania R450", "Branco", 5000));
-
-// --- FUNÇÃO PRINCIPAL DE ATUALIZAÇÃO DA INTERFACE ---
-function atualizarUI() {
-    const veiculo = minhaGaragem.veiculoSelecionado;
-    if (!veiculo) {
-        painelInteracao.classList.add('hidden');
-        return;
-    }
-
-    painelInteracao.classList.remove('hidden');
-
-    // Atualiza título, imagem e informações (aqui o polimorfismo brilha!)
-    elVeiculoSelecionado.textContent = `Controlando: ${veiculo.modelo}`;
-    elImagemVeiculo.src = veiculo.imagem;
-    elInformacoesVeiculo.innerHTML = veiculo.exibirInformacoes();
-
-    // Atualiza o velocímetro
-    const percentualVelocidade = (veiculo.velocidade / veiculo.velocidadeMaxima) * 100;
-    elVelocimetroBarra.style.width = `${percentualVelocidade}%`;
-
-    // Mostra/Esconde botões específicos
-    elBtnTurbo.style.display = (veiculo instanceof CarroEsportivo) ? 'inline-block' : 'none';
-    elControlesCaminhao.classList.toggle('hidden', !(veiculo instanceof Caminhao));
-}
-
-// --- EVENT LISTENERS (CLIQUES DOS BOTÕES) ---
-
-// Seleção de Veículo
-document.getElementById('btnCarro').addEventListener('click', () => {
-    minhaGaragem.selecionarVeiculo(0);
-    atualizarUI();
-});
-document.getElementById('btnEsportivo').addEventListener('click', () => {
-    minhaGaragem.selecionarVeiculo(1);
-    atualizarUI();
-});
-document.getElementById('btnCaminhao').addEventListener('click', () => {
-    minhaGaragem.selecionarVeiculo(2);
-    atualizarUI();
+    
+    atualizarDisplay();
 });
 
-// Ações do Veículo (usando delegação de eventos)
-elControlesAcoes.addEventListener('click', (event) => {
-    if (event.target.tagName === 'BUTTON' && event.target.dataset.acao) {
-        const acao = event.target.dataset.acao;
-        minhaGaragem.interagir(acao);
-    }
-});
-
-// Ação de Carregar Caminhão
-document.querySelector('#controlesCaminhao button').addEventListener('click', () => {
-    const peso = parseInt(elInputCarga.value, 10);
-    if (!isNaN(peso) && peso > 0) {
-        minhaGaragem.interagir('carregar', peso);
-        elInputCarga.value = '';
-    } else {
-        exibirAlerta("Por favor, insira um peso válido.");
-    }
-});
+window.onload = atualizarDisplay;
